@@ -5,7 +5,9 @@ public class WeaponInstance : MonoBehaviour {
 
 	// Notes:
 	// The 0 point of models should be exactly where the eye/camera would be if one were aiming down the sights properly.
-
+	
+	public GameObject mainObject;
+	
 	public WeaponTemplate template;
 
 	public int magazine;
