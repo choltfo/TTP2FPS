@@ -23,7 +23,10 @@ public class MobileEntity : MonoBehaviour {
 
 	void Update () {
 		Move ();
+		childUpdate ();
 	}
+
+	public virtual void childUpdate() {}
 
 	public virtual void Move() {}
 }
