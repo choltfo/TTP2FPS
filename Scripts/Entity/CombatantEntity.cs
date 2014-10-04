@@ -5,9 +5,10 @@ using System.Collections;
 public class CombatantEntity : MobileEntity {
 
 	// Vars needed:
-
-	// Weapons in inventory. Object array.
-	// Current weapon. Int.
+	
+	public WeaponInstance[] weapons;
+	public int currentWeapon;
+	
 	// Cover. Object reference.
 
 	// Tries to shoot a gun.
@@ -18,11 +19,12 @@ public class CombatantEntity : MobileEntity {
 	public int fireWeapon() {
 		return 3;
 	}
-
-
+	
+	
 	// Attempts to enter the cover passed
 	public virtual int enterCover() {
 		return 3;
 	}
 
 }
+

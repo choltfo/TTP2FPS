@@ -52,3 +52,4 @@ public class Player : CombatantEntity {
 		c.Move(moveDirection * Time.deltaTime);
 	}
 }
+
