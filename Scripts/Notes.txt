@@ -1,0 +1,8 @@
+Notes for TTP2FPS:
+
+Recoil:
+Recoil is a 3 dimensional vector that is held in the Combatant Entity. The Z-component is ignored if the character is grounded. Otherwise,
+it applies some force to the character in the local -Z direction. The X and Y axes need to be divided by some dampening factor.
+This is to be added later on.
+
+TODO: Create weapon aiming. Attachments.

@@ -37,6 +37,21 @@ public class Player : CombatantEntity {
 
 	public override void childUpdate () {
 		handleLook ();
+		
+		if (weapons[currentWeapon].template.fireModes[weapons[currentWeapon].fireSelect] == 0) {
+			if (Input.GetMouseButton(0)) {				// Automatic, fireMode is 0.
+				weapons[currentWeapon].trigger(this);
+			}
+		} else {
+			if (Input.GetMouseButtonDown(0)) {			// Burst or semi otherwise.
+				weapons[currentWeapon].trigger(this);
+			}
+		}
+		
+		if (Input.GetMouseButtonDown(1)) {
+			// RMB. Aim gun now!
+		}
+		
 	}
 
 	public override void Move () {

@@ -22,6 +22,8 @@ public class WeaponInstance : MonoBehaviour {
 
 	public WeaponState state = WeaponState.None;
 	public float lastStateChange = 0f;
+	
+	public CombatantEntity holder;
 
 	/*
 		On remainingBurst:
@@ -35,8 +37,10 @@ public class WeaponInstance : MonoBehaviour {
 	
 	// To be called continually for automatic, or intermittently for a semi or burst weapon.
 	public bool trigger (CombatantEntity shooter) {
+		holder = shooter;
 		if (remainingBurst == 0 && canFire()) {
-			remainingBurst = template.fireModes[fireSelect];
+			// Potential source of failure!
+			remainingBurst = (template.fireModes[fireSelect] == 0 ? 1 : template.fireModes[fireSelect]);
 		}
 	}
 	
@@ -61,11 +65,11 @@ public class WeaponInstance : MonoBehaviour {
 	}
 	
 	// For each bullet leaving the gun, do this.
-	public void fire (CombatantEntity shooter) {
+	public void fire () {
 		RaycastHit hit = new RaycastHit();
 		// TODO: Charles: Add inaccuracy.
 		if (Physics.Raycast (transform.position + transform.TransformPoint (template.bulletSource), transform.eulerAngles, out hit)) {
-			BulletData b = new BulletData(shooter, template.damage);
+			BulletData b = new BulletData(holder, template.damage);
 			hit.transform.gameObject.SendMessage ("ReceiveShot",b);
 		}
 		
