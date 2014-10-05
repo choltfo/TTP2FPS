@@ -14,7 +14,7 @@ public class CombatantEntity : MobileEntity {
 	
 	// Tries to shoot a gun.
 	public void fireWeapon() {
-		weapons[currentWeapon].trigger();
+		weapons[currentWeapon].trigger(this);
 	}
 	
 	

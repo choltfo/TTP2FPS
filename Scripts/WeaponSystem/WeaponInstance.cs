@@ -5,20 +5,19 @@ public class WeaponInstance : MonoBehaviour {
 
 	// Notes:
 	// The 0 point of models should be exactly where the eye/camera would be if one were aiming down the sights properly.
-	
-	public GameObject mainObject;
+
 	public AudioSource AS;
 	
 	// The weapon template accessed to find prefabs and variables.
 	public WeaponTemplate template;
-	
+
 	public int magazine;
 	public int ammoReserve;
 	
 	// Takes the Nth fire mode. Allows for select firing of weapons.
 	public int fireSelect = 0;
 	
-	int remainingBurst = 0;
+	public int remainingBurst = 0;
 
 	public WeaponState state = WeaponState.None;
 	public float lastStateChange = 0f;
@@ -41,16 +40,21 @@ public class WeaponInstance : MonoBehaviour {
 		if (remainingBurst == 0 && canFire()) {
 			// Potential source of failure!
 			remainingBurst = (template.fireModes[fireSelect] == 0 ? 1 : template.fireModes[fireSelect]);
+			return true;
 		}
+		return false;
 	}
 	
-	void update() {
-		if (state == WeaponState.arming && lastStateChange + template.rearmTime > Time.time) setState(WeaponState.None);
+	void Update() {
+		if (state == WeaponState.Arming && lastStateChange + template.rearmTime > Time.time) setState(WeaponState.None);
 		
 		if (state == WeaponState.None && canFire() && remainingBurst > 0) {
 			fire();
 		}
-		
+
+		transform.Find ("M4A1/Laser").gameObject.GetComponent<LineRenderer> ().useWorldSpace = true;
+		transform.Find ("M4A1/Laser").gameObject.GetComponent<LineRenderer> ().SetPosition(1,transform.TransformPoint (template.bulletSource));
+		transform.Find ("M4A1/Laser").gameObject.GetComponent<LineRenderer> ().SetPosition(0,transform.position);
 	}
 	
 	// Whether the gun CAN shoot, not whether it will.
@@ -66,11 +70,14 @@ public class WeaponInstance : MonoBehaviour {
 	
 	// For each bullet leaving the gun, do this.
 	public void fire () {
+		print ("Shooting weapon.");
 		RaycastHit hit = new RaycastHit();
 		// TODO: Charles: Add inaccuracy.
-		if (Physics.Raycast (transform.position + transform.TransformPoint (template.bulletSource), transform.eulerAngles, out hit)) {
+		if (Physics.Raycast (transform.TransformPoint (template.bulletSource), transform.eulerAngles, out hit)) {
 			BulletData b = new BulletData(holder, template.damage);
-			hit.transform.gameObject.SendMessage ("ReceiveShot",b);
+			//hit.transform.gameObject.SendMessage ("ReceiveShot",b);  				// Correct but sketchy feeling way of doing it.
+			hit.transform.gameObject.GetComponent<BulletHoles>().ReceiveShot(b);	// The other manner. 
+			print("Hit something with " + template.name);
 		}
 		
 		// A bullet has been fired, so remove it from the queue, and get the action moving backwards.

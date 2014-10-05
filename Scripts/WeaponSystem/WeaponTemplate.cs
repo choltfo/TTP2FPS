@@ -8,10 +8,12 @@ public class WeaponTemplate : ScriptableObject {
 
 	public Vector3 bulletSource;
 	public float range;
-	
+
+	/*
 	public float zRecoil;	// Force applied backwards to the shooter.
 	public float xRecoil;	// Maximum sway from a shot. Applied on Y-axis.
 	public float yRecoil;	// Maximum vertical sway. Applied on X-axis.
+	*/
 
 	public int magSize;
 
@@ -35,13 +37,17 @@ public class WeaponTemplate : ScriptableObject {
 
 	public WeaponInstance create (GameObject parent, int mags) {
 		GameObject go = (GameObject)Instantiate (MainWeapon, parent.transform.position, parent.transform.rotation);
-		WeaponInstance w = go.AddComponent<WeaponInstance>();
-		w.AS = go.transform.Find(AS);
+		go.transform.parent = parent.transform;
+		go.transform.localPosition = Vector3.zero;
+		go.transform.localEulerAngles = Vector3.zero;
+		WeaponInstance w = go.AddComponent<WeaponInstance> ();
+		w.AS = go.transform.Find (AS).gameObject.audio;
 		w.template = this;
 		w.magazine = magSize;
 		w.ammoReserve = mags * magSize;
+		//MonoBehaviour.print ("Is this even getting called?!");
 		return w;
 	}
-	
+
 }
 
