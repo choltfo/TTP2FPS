@@ -6,7 +6,7 @@ public class Player : CombatantEntity {
 	public int playerNumber = 0;
 	public string playerName = "Player 1";
 
-	public Transform head;
+	public GameObject head;
 
 	public float speed = 6.0F;
 	public float jumpSpeed = 8.0F;
@@ -23,6 +23,13 @@ public class Player : CombatantEntity {
 
 	private Vector3 moveDirection = Vector3.zero;
 
+	public WeaponTemplate starter;
+
+
+	public override void childStart() {
+		weapons [0] = starter.create (head, 2);
+	}
+
 	void handleLook() {
 		float inputHorizontal = Input.GetAxis ("Mouse X");
 		float inputVertical = Input.GetAxis ("Mouse Y");
@@ -30,13 +37,37 @@ public class Player : CombatantEntity {
 		rotationVert += (inputVertical * (invertVertical ? sensitivtyVertical : -sensitivtyVertical));
 		rotationVert = Mathf.Clamp(rotationVert, -Mathf.Abs(maxVert), Mathf.Abs(minVert));
 		
-		head.localEulerAngles = new Vector3 (rotationVert,0,0);
+		head.transform.localEulerAngles = new Vector3 (rotationVert,0,0);
 		
 		transform.localEulerAngles = new Vector3 (0,transform.localEulerAngles.y + (inputHorizontal * sensitivtyHorizontal) % 360,0);
 	}
 
 	public override void childUpdate () {
 		handleLook ();
+		if (weapons.Length != 0) {
+			if (weapons [currentWeapon].template.fireModes [weapons [currentWeapon].fireSelect] == 0) {
+				if (Input.GetMouseButton (0)) {				// Automatic, fireMode is 0.
+					weapons [currentWeapon].trigger (this);
+				}
+			} else {
+				if (Input.GetMouseButtonDown (0)) {			// Burst or semi otherwise.
+					weapons [currentWeapon].trigger (this);
+				}
+			}
+		}
+
+		/*float wheelIn = Input.GetAxis ("Mouse ScrollWheel");
+		if (wheelIn != 0 && weapons.Length != 0) {
+			print("Changed curweap, deploying weapon!");
+			weapons[currentWeapon].gameObject.SetActive(false);
+			currentWeapon += (wheelIn > 0 ? 1 : -1);
+			weapons[currentWeapon].gameObject.SetActive(true);
+		}*/
+
+		if (Input.GetMouseButtonDown(1)) {
+			// RMB. Aim gun now!
+		}
+		
 	}
 
 	public override void Move () {
@@ -52,3 +83,4 @@ public class Player : CombatantEntity {
 		c.Move(moveDirection * Time.deltaTime);
 	}
 }
+

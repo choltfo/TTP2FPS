@@ -19,12 +19,15 @@ public class MobileEntity : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		c = GetComponent<CharacterController> ();
+		childStart ();
 	}
 
 	void Update () {
 		Move ();
 		childUpdate ();
 	}
+
+	public virtual void childStart() {}
 
 	public virtual void childUpdate() {}
 
