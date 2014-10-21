@@ -73,11 +73,16 @@ public class WeaponInstance : MonoBehaviour {
 		print ("Shooting weapon.");
 		RaycastHit hit = new RaycastHit();
 		// TODO: Charles: Add inaccuracy.
+		// TODO: This puts bullets on the right trajectory, just offset.
 		if (Physics.Raycast (transform.TransformPoint (template.bulletSource), transform.eulerAngles, out hit)) {
 			BulletData b = new BulletData(holder, template.damage);
 			//hit.transform.gameObject.SendMessage ("ReceiveShot",b);  				// Correct but sketchy feeling way of doing it.
 			
-			hit.transform.gameObject.GetComponent<BulletReceiver>().ReceiveShot(b);	// The other manner. 
+			BulletReceiver = hit.transform.gameObject.getComponent<BulletReceiver>();
+			if (BulletReceiver != null) {
+				BulletReceiver.ReceiveShot(b);
+			}
+			
 			print("Hit something with " + template.name);
 		}
 		
