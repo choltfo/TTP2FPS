@@ -76,7 +76,8 @@ public class WeaponInstance : MonoBehaviour {
 		if (Physics.Raycast (transform.TransformPoint (template.bulletSource), transform.eulerAngles, out hit)) {
 			BulletData b = new BulletData(holder, template.damage);
 			//hit.transform.gameObject.SendMessage ("ReceiveShot",b);  				// Correct but sketchy feeling way of doing it.
-			hit.transform.gameObject.GetComponent<BulletHoles>().ReceiveShot(b);	// The other manner. 
+			
+			hit.transform.gameObject.GetComponent<BulletReceiver>().ReceiveShot(b);	// The other manner. 
 			print("Hit something with " + template.name);
 		}
 		
