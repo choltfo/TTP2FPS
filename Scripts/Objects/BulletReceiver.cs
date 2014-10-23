@@ -20,9 +20,5 @@ public class BulletReceiver : MonoBehaviour {
 	}
 }
 
-public class HitBox : BulletReceiver {
-	public override void ReceiveShot(BulletData bd) {
-		print ("Was shot by " + bd.shooter.name + " for " + bd.damage + " damage.");
-	}
-}
+
 
