@@ -31,7 +31,8 @@ public class WeaponInstance : MonoBehaviour {
 	/// If it's 'none', the gun is somwhere else.
 	/// </summary>
 	public HoldPos holdPos = HoldPos.none;
-	
+	// TODO: Add a function that allows for LERPing between the positions ONLY WHEN NECESSARY.
+	public AnimState animState = new AnimState();
 
 
 	/*
