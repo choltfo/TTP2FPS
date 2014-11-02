@@ -14,7 +14,7 @@ public class BulletReceiver : MonoBehaviour {
 	
 	}*/
 	
-	public void ReceiveShot(BulletData bd) {
+	public virtual void ReceiveShot(BulletData bd) {
 		print ("Was shot by " + bd.shooter.name);
 		// This needs excessive extension.
 	}

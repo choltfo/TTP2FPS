@@ -24,6 +24,16 @@ public class WeaponInstance : MonoBehaviour {
 	
 	public CombatantEntity holder;
 
+	/// <summary>
+	/// Indicates where the gun should be.
+	/// If it's 'scope', the gun should be at ScopePos.
+	/// If it's 'hold', the gun should be at holdPos.
+	/// If it's 'none', the gun is somwhere else.
+	/// </summary>
+	public HoldPos holdPos = HoldPos.none;
+	
+
+
 	/*
 		On remainingBurst:
 		This controls how many bullets should be fired before the next trigger pull is accepted.
@@ -52,9 +62,9 @@ public class WeaponInstance : MonoBehaviour {
 			fire();
 		}
 
-		transform.Find ("M4A1/Laser").gameObject.GetComponent<LineRenderer> ().useWorldSpace = true;
-		transform.Find ("M4A1/Laser").gameObject.GetComponent<LineRenderer> ().SetPosition(1,transform.TransformPoint (template.bulletSource));
-		transform.Find ("M4A1/Laser").gameObject.GetComponent<LineRenderer> ().SetPosition(0,transform.position);
+		//transform.Find ("M4A1/Laser").gameObject.GetComponent<LineRenderer> ().useWorldSpace = true;
+		//transform.Find ("M4A1/Laser").gameObject.GetComponent<LineRenderer> ().SetPosition(1,transform.TransformPoint (template.bulletSource));
+		//transform.Find ("M4A1/Laser").gameObject.GetComponent<LineRenderer> ().SetPosition(0,transform.position);
 	}
 	
 	// Whether the gun CAN shoot, not whether it will.
@@ -70,20 +80,25 @@ public class WeaponInstance : MonoBehaviour {
 	
 	// For each bullet leaving the gun, do this.
 	public void fire () {
-		print ("Shooting weapon.");
+		//print ("Shooting weapon.");
 		RaycastHit hit = new RaycastHit();
 		// TODO: Charles: Add inaccuracy.
-		// TODO: This puts bullets on the right trajectory, just offset.
-		if (Physics.Raycast (transform.TransformPoint (template.bulletSource), transform.eulerAngles, out hit)) {
+
+		Vector3 Innacc = Vector3.zero;
+		
+		if (Physics.Raycast (transform.TransformPoint (template.bulletSource), transform.parent.forward + Innacc, out hit)) {
 			BulletData b = new BulletData(holder, template.damage);
 			//hit.transform.gameObject.SendMessage ("ReceiveShot",b);  				// Correct but sketchy feeling way of doing it.
-			
-			BulletReceiver = hit.transform.gameObject.getComponent<BulletReceiver>();
-			if (BulletReceiver != null) {
-				BulletReceiver.ReceiveShot(b);
+
+			Debug.DrawLine(transform.TransformPoint (template.bulletSource), hit.point, Color.green, 100);
+			Debug.DrawLine(transform.TransformPoint (template.bulletSource), transform.position, Color.red, 100);
+
+			BulletReceiver h = hit.transform.gameObject.GetComponent<BulletReceiver>();
+			if (h != null) {
+				h.ReceiveShot(b);
 			}
 			
-			print("Hit something with " + template.name);
+			//print("Hit " + hit.transform.name + " with " + template.name);
 		}
 		
 		// A bullet has been fired, so remove it from the queue, and get the action moving backwards.
@@ -92,7 +107,7 @@ public class WeaponInstance : MonoBehaviour {
 		setState(WeaponState.Arming);
 		
 		if (magazine == 0) {
-			state = WeaponState.Empty;
+ 			state = WeaponState.Empty;
 			remainingBurst = 0;
 		}
 	}
