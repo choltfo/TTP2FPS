@@ -19,9 +19,16 @@ public class WeaponInstance : MonoBehaviour {
 	
 	public int remainingBurst = 0;
 
-	public WeaponState state = WeaponState.None;
 	public float lastStateChange = 0f;
-	
+
+	public WeaponState state = WeaponState.None;
+	/*	set {
+			state = value;
+			lastStateChange = Time.time;
+		}
+		get { return state;}
+	}*/
+
 	public CombatantEntity holder;
 
 	/// <summary>
@@ -34,6 +41,8 @@ public class WeaponInstance : MonoBehaviour {
 	// TODO: Add a function that allows for LERPing between the positions ONLY WHEN NECESSARY.
 	public AnimState animState = new AnimState();
 
+	public Animator animCont;
+	
 
 	/*
 		On remainingBurst:
@@ -57,11 +66,9 @@ public class WeaponInstance : MonoBehaviour {
 	}
 	
 	void Update() {
-		if (state == WeaponState.Arming && lastStateChange + template.rearmTime > Time.time) setState(WeaponState.None);
+		if (state == WeaponState.Arming && lastStateChange + template.rearmTime < Time.time) setState(WeaponState.None);
 		
-		if (state == WeaponState.None && canFire() && remainingBurst > 0) {
-			fire();
-		}
+		if (state == WeaponState.None && canFire() && remainingBurst > 0) fire();
 
 		//transform.Find ("M4A1/Laser").gameObject.GetComponent<LineRenderer> ().useWorldSpace = true;
 		//transform.Find ("M4A1/Laser").gameObject.GetComponent<LineRenderer> ().SetPosition(1,transform.TransformPoint (template.bulletSource));
@@ -83,6 +90,11 @@ public class WeaponInstance : MonoBehaviour {
 	public void fire () {
 		//print ("Shooting weapon.");
 		RaycastHit hit = new RaycastHit();
+
+		animCont.SetInteger ("State",1);
+
+
+
 		// TODO: Charles: Add inaccuracy.
 
 		Vector3 Innacc = Vector3.zero;

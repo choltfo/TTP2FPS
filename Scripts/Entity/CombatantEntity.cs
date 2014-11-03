@@ -7,7 +7,7 @@ public class CombatantEntity : MobileEntity {
 	// Vars needed:
 	
 	public WeaponInstance[] weapons;
-	public int currentWeapon;
+	public int currentWeapon = 0;
 	
 	// Cover. Object reference.
 	

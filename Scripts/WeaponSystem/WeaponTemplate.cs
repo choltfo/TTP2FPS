@@ -38,16 +38,35 @@ public class WeaponTemplate : ScriptableObject {
 	// 0,1,3 is a standard assault rifle, with auto, semi, and 3-round burst.
 	public int[] fireModes = {0,1,3};
 
-	public WeaponInstance create (GameObject parent, int mags) {
+	// Animations go beneath here.
+
+	public AnimationClip cameraShake;
+	public AnimationClip reload;
+	public AnimationClip gunShake;	// Must reset in rearmTime or shorter! Camera shake handles offsetting.
+
+	public WeaponInstance create (GameObject parent, int mags, HoldPos hp, Vector3 position = default(Vector3)) {
 		GameObject go = (GameObject)Instantiate (MainWeapon, parent.transform.position, parent.transform.rotation);
 		go.transform.parent = parent.transform;
-		go.transform.localPosition = holdPos;
 		go.transform.localEulerAngles = Vector3.zero;
 		WeaponInstance w = go.AddComponent<WeaponInstance> ();
-		w.AS = go.transform.Find (AS).gameObject.audio;
+		//w.AS = go.transform.Find (AS).gameObject.audio;
 		w.template = this;
 		w.magazine = magSize;
 		w.ammoReserve = mags * magSize;
+		w.holdPos = hp;
+		w.state = WeaponState.None;
+
+		w.animCont = go.GetComponent<Animator>();
+		//w.animCont.
+
+		if (hp == HoldPos.hold) {
+			go.transform.Translate(holdPos, Space.Self);
+		} else if (hp == HoldPos.scope) {
+			go.transform.Translate(scopePos, Space.Self);
+		} else {
+			go.transform.Translate(position, Space.Self);
+		}
+
 		//MonoBehaviour.print ("Is this even getting called?!");
 		return w;
 	}

@@ -27,7 +27,7 @@ public class Player : CombatantEntity {
 
 
 	public override void childStart() {
-		weapons [0] = starter.create (head, 2);
+		weapons [0] = starter.create (head, 2, HoldPos.hold);
 	}
 
 	void handleLook() {
@@ -45,7 +45,8 @@ public class Player : CombatantEntity {
 	public override void childUpdate () {
 		handleLook ();
 		if (weapons.Length != 0) {
-			if (weapons [currentWeapon].template.fireModes [weapons [currentWeapon].fireSelect] == 0) {
+			int[] fm = weapons [currentWeapon].template.fireModes;
+			if (fm[weapons [currentWeapon].fireSelect] == 0) {
 				if (Input.GetMouseButton (0)) {				// Automatic, fireMode is 0.
 					weapons [currentWeapon].trigger (this);
 				}
