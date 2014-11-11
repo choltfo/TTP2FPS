@@ -32,4 +32,9 @@ public static class ScriptableObjectUtility {
 	public static void createWeaponReference() {
 		CreateAsset <WeaponTemplate> ();
 	}
+
+	[MenuItem("Choltfo/Create/Weapon Animation")]
+	public static void createWeaponAnimation() {
+		CreateAsset <WeaponAnimation> ();
+	}
 }

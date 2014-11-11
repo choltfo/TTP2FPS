@@ -37,7 +37,20 @@ public class WeaponInstance : MonoBehaviour {
 	/// If it's 'hold', the gun should be at holdPos.
 	/// If it's 'none', the gun is somwhere else.
 	/// </summary>
-	public HoldPos holdPos = HoldPos.none;
+	public HoldPos holdPos;
+	float holdChangeTime = 0f;
+
+	Vector3 lastHoldPos;
+
+
+
+	public void setHoldPos (HoldPos Val) {
+		lastHoldPos = transform.localPosition;
+		holdPos = Val;
+		holdChangeTime = Time.time;
+	}
+
+
 	// TODO: Add a function that allows for LERPing between the positions ONLY WHEN NECESSARY.
 	public AnimState animState = new AnimState();
 
@@ -70,6 +83,8 @@ public class WeaponInstance : MonoBehaviour {
 		
 		if (state == WeaponState.None && canFire() && remainingBurst > 0) fire();
 
+		transform.localPosition = Vector3.Lerp (lastHoldPos, holdPos == HoldPos.scope ? template.scopePos : template.holdPos, (Time.time - holdChangeTime)/template.scopeTime);
+
 		//transform.Find ("M4A1/Laser").gameObject.GetComponent<LineRenderer> ().useWorldSpace = true;
 		//transform.Find ("M4A1/Laser").gameObject.GetComponent<LineRenderer> ().SetPosition(1,transform.TransformPoint (template.bulletSource));
 		//transform.Find ("M4A1/Laser").gameObject.GetComponent<LineRenderer> ().SetPosition(0,transform.position);
@@ -79,6 +94,8 @@ public class WeaponInstance : MonoBehaviour {
 	public bool canFire () {
 		return state == WeaponState.None && magazine > 0;
 	}
+
+
 	
 	// A setter for State, just to prevent stupidity at a later date.
 	public void setState (WeaponState s) {
@@ -91,7 +108,7 @@ public class WeaponInstance : MonoBehaviour {
 		//print ("Shooting weapon.");
 		RaycastHit hit = new RaycastHit();
 
-		animCont.SetInteger ("State",1);
+		//animCont.SetInteger ("State",1);
 
 
 

@@ -29,6 +29,10 @@ public class WeaponTemplate : ScriptableObject {
 	
 	// Time to reload.
 	public float reloadTime = 1f;
+
+	public float scopeTime = 0.25f;
+
+	public bool canAim = true;
 	
 	// Sear type.
 	// 0 = Infinite shots per trigger pull.
@@ -40,9 +44,9 @@ public class WeaponTemplate : ScriptableObject {
 
 	// Animations go beneath here.
 
-	public AnimationClip cameraShake;
-	public AnimationClip reload;
-	public AnimationClip gunShake;	// Must reset in rearmTime or shorter! Camera shake handles offsetting.
+	public CustomAnim cameraShake;
+	public CustomAnim reload;
+	public CustomAnim gunShake;	// Must reset in rearmTime or shorter! Camera shake handles offsetting.
 
 	public WeaponInstance create (GameObject parent, int mags, HoldPos hp, Vector3 position = default(Vector3)) {
 		GameObject go = (GameObject)Instantiate (MainWeapon, parent.transform.position, parent.transform.rotation);

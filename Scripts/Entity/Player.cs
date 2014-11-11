@@ -65,8 +65,10 @@ public class Player : CombatantEntity {
 			weapons[currentWeapon].gameObject.SetActive(true);
 		}*/
 
-		if (Input.GetMouseButtonDown(1)) {
-			// RMB. Aim gun now!
+		if (weapons [currentWeapon].template.canAim) { 
+			if (Input.GetMouseButtonDown (1)) {
+				weapons[currentWeapon].setHoldPos(weapons[currentWeapon].holdPos == HoldPos.scope ? HoldPos.hold : HoldPos.scope);
+			}
 		}
 		
 	}
