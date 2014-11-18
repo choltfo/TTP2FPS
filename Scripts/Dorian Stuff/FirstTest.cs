@@ -21,11 +21,10 @@ public class coverWall : MonoBehaviour {
 
 
 public class guideTrack {
-	public int x1;
-	public int y1;
+	public vector3 One;
+	public vector3 Two;
 
-	public int x2; public int y2;
-//This needs to be changed into vectors, but not now...
+//Vectors!
 	coverWall* parentObject;
 
 
