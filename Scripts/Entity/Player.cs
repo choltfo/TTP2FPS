@@ -25,6 +25,9 @@ public class Player : CombatantEntity {
 
 	public WeaponTemplate starter;
 
+	// The parent function to use when calculating the recoil from a gun.
+	public AnimationCurve recoilParentCurve;
+
 
 	public override void childStart() {
 		weapons [0] = starter.create (head, 2, HoldPos.hold);
@@ -57,6 +60,10 @@ public class Player : CombatantEntity {
 			}
 		}
 
+		if (Input.GetKeyDown (KeyCode.X)) {
+			weapons[currentWeapon].fireSelect = (weapons[currentWeapon].fireSelect + 1) % weapons[currentWeapon].template.fireModes.Length;
+		}
+
 		/*float wheelIn = Input.GetAxis ("Mouse ScrollWheel");
 		if (wheelIn != 0 && weapons.Length != 0) {
 			print("Changed curweap, deploying weapon!");
@@ -71,6 +78,10 @@ public class Player : CombatantEntity {
 			}
 		}
 		
+	}
+
+	public override void recoil(float powerCoef, int sequence) {
+		rotationVert += recoilParentCurve.Evaluate (sequence) * powerCoef;
 	}
 
 	public override void Move () {

@@ -17,6 +17,7 @@ public class WeaponTemplate : ScriptableObject {
 	public float xRecoil;	// Maximum sway from a shot. Applied on Y-axis.
 	public float yRecoil;	// Maximum vertical sway. Applied on X-axis.
 	*/
+	public float YRecoil; // Recoil coeffecient for recoil() on CombatatEntity.
 
 	public int magSize;
 

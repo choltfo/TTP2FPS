@@ -16,10 +16,22 @@ public class WeaponInstance : MonoBehaviour {
 	
 	// Takes the Nth fire mode. Allows for select firing of weapons.
 	public int fireSelect = 0;
+
+	/*
+		On remainingBurst:
+		This controls how many bullets should be fired before the next trigger pull is accepted.
+		If it is 0, then no bullets should be fired. If it is >0, that means that that many rounds should be fired before the next trigger pull is accepted.
+		If the gun is in automatic, then the variable should be held at 1 by external input. Thus, the gun should keep firing until the trigger is released.
+			This is, effectively, the same as semi automatic, but needs external resetting after each shot.
+		This should be handled in the CombatantEntity class, where a check between automatic and burst weapons must be made before attempting to fire.
+			For Players, this should be done by distinguishing onMousePress and onMouse, or whatever those procedures are called.
+	*/
 	
 	public int remainingBurst = 0;
+	public int firedBurst = 0;
 
 	public float lastStateChange = 0f;
+
 
 	public WeaponState state = WeaponState.None;
 	/*	set {
@@ -43,7 +55,6 @@ public class WeaponInstance : MonoBehaviour {
 	Vector3 lastHoldPos;
 
 
-
 	public void setHoldPos (HoldPos Val) {
 		lastHoldPos = transform.localPosition;
 		holdPos = Val;
@@ -55,17 +66,6 @@ public class WeaponInstance : MonoBehaviour {
 	public AnimState animState = new AnimState();
 
 	public Animator animCont;
-	
-
-	/*
-		On remainingBurst:
-		This controls how many bullets should be fired before the next trigger pull is accepted.
-		If it is 0, then no bullets should be fired. If it is >0, that means that that many rounds should be fired before the next trigger pull is accepted.
-		If the gun is in automatic, then the variable should be held at 1 by external input. Thus, the gun should keep firing until the trigger is released.
-			This is, effectively, the same as semi automatic, but needs external resetting after each shot.
-		This should be handled in the CombatantEntity class, where a check between automatic and burst weapons must be made before attempting to fire.
-			For Players, this should be done by distinguishing onMousePress and onMouse, or whatever those procedures are called.
-	*/
 	
 	// To be called continually for automatic, or intermittently for a semi or burst weapon.
 	public bool trigger (CombatantEntity shooter) {
@@ -81,7 +81,10 @@ public class WeaponInstance : MonoBehaviour {
 	void Update() {
 		if (state == WeaponState.Arming && lastStateChange + template.rearmTime < Time.time) setState(WeaponState.None);
 		
-		if (state == WeaponState.None && canFire() && remainingBurst > 0) fire();
+		if (state == WeaponState.None && canFire () && remainingBurst > 0) {
+			fire ();
+			firedBurst ++;
+		} else firedBurst = 0;
 
 		transform.localPosition = Vector3.Lerp (lastHoldPos, holdPos == HoldPos.scope ? template.scopePos : template.holdPos, (Time.time - holdChangeTime)/template.scopeTime);
 
@@ -127,6 +130,8 @@ public class WeaponInstance : MonoBehaviour {
 			if (h != null) {
 				h.ReceiveShot(b);
 			}
+
+			holder.recoil(template.YRecoil, firedBurst);
 			
 			//print("Hit " + hit.transform.name + " with " + template.name);
 		}
