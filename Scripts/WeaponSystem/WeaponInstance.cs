@@ -120,7 +120,7 @@ public class WeaponInstance : MonoBehaviour {
 		
 		if (Physics.Raycast (transform.TransformPoint (template.bulletSource), transform.parent.forward + Innacc, out hit)) {
 			BulletData b = new BulletData(holder, template.damage);
-			//hit.transform.gameObject.SendMessage ("ReceiveShot",b);  				// Correct but sketchy feeling way of doing it.
+			//hit.transform.gameObject.SendMessage ("receiveShot",b);  				// Correct but sketchy feeling way of doing it.
 
 			Debug.DrawLine(transform.TransformPoint (template.bulletSource), hit.point, Color.green, 100);
 			Debug.DrawLine(transform.TransformPoint (template.bulletSource), transform.position, Color.red, 100);
