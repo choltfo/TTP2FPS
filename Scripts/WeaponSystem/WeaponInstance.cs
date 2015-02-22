@@ -80,11 +80,10 @@ public class WeaponInstance : MonoBehaviour {
 	
 	void Update() {
 		if (state == WeaponState.Arming && lastStateChange + template.rearmTime < Time.time) setState(WeaponState.None);
-		
+
 		if (state == WeaponState.None && canFire () && remainingBurst > 0) {
 			fire ();
-			firedBurst ++;
-		} else firedBurst = 0;
+		}
 
 		transform.localPosition = Vector3.Lerp (lastHoldPos, holdPos == HoldPos.scope ? template.scopePos : template.holdPos, (Time.time - holdChangeTime)/template.scopeTime);
 
@@ -131,15 +130,16 @@ public class WeaponInstance : MonoBehaviour {
 				h.ReceiveShot(b);
 			}
 
-			holder.recoil(template.YRecoil, firedBurst);
 			
 			//print("Hit " + hit.transform.name + " with " + template.name);
 		}
+		 
+		holder.recoil(template.YRecoil, firedBurst+1);	// Burst+1 since it gets incremented in setState.
 		
 		// A bullet has been fired, so remove it from the queue, and get the action moving backwards.
+		setState(WeaponState.Arming);
 		remainingBurst --;
 		magazine --;					// Spend one bullet. Possibly subject to change?
-		setState(WeaponState.Arming);
 		
 		if (magazine == 0) {
  			state = WeaponState.Empty;

@@ -81,7 +81,7 @@ public class Player : CombatantEntity {
 	}
 
 	public override void recoil(float powerCoef, int sequence) {
-		rotationVert += recoilParentCurve.Evaluate (sequence) * powerCoef;
+		rotationVert -= recoilParentCurve.Evaluate (sequence) * powerCoef;
 	}
 
 	public override void Move () {

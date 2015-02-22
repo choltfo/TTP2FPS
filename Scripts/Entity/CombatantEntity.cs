@@ -17,7 +17,9 @@ public class CombatantEntity : MobileEntity {
 		weapons[currentWeapon].trigger(this);
 	}
 
-	public virtual void recoil (float powerCoef, int sequence);
+	public virtual void recoil (float powerCoef, int sequence) {
+		return;
+	}
 	
 	// Attempts to enter the cover passed
 	public virtual int enterCover() {
