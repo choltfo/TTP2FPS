@@ -13,6 +13,9 @@ public class WeaponInstance : MonoBehaviour {
 
 	public int magazine;
 	public int ammoReserve;
+
+	public float XRecoilVel;
+	public float XRecoilRot;
 	
 	// Takes the Nth fire mode. Allows for select firing of weapons.
 	public int fireSelect = 0;
@@ -77,7 +80,11 @@ public class WeaponInstance : MonoBehaviour {
 		}
 		return false;
 	}
-	
+
+	float getVelTowardsCenter() {
+		return Mathf.Clamp01 (-XRecoilRot) * template.XRecoilAccel;
+	}
+
 	void Update() {
 		if (state == WeaponState.Arming && lastStateChange + template.rearmTime < Time.time) setState(WeaponState.None);
 
@@ -85,11 +92,20 @@ public class WeaponInstance : MonoBehaviour {
 			fire ();
 		}
 
+		if (Mathf.Abs (XRecoilRot) < 0.1) {
+			XRecoilRot = 0;
+			//XRecoilVel = 0;
+		}// else XRecoilVel -= Mathf.Sign (XRecoilRot) * template.XRecoilAccel * Time.deltaTime;
+
+		XRecoilVel = Mathf.Lerp (XRecoilVel,getVelTowardsCenter(),Time.deltaTime*template.XRecoilAccel);
+
+		XRecoilRot += XRecoilVel * Time.deltaTime;
+
+		transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, XRecoilRot, transform.localEulerAngles.z);
+
+
 		transform.localPosition = Vector3.Lerp (lastHoldPos, holdPos == HoldPos.scope ? template.scopePos : template.holdPos, (Time.time - holdChangeTime)/template.scopeTime);
 
-		//transform.Find ("M4A1/Laser").gameObject.GetComponent<LineRenderer> ().useWorldSpace = true;
-		//transform.Find ("M4A1/Laser").gameObject.GetComponent<LineRenderer> ().SetPosition(1,transform.TransformPoint (template.bulletSource));
-		//transform.Find ("M4A1/Laser").gameObject.GetComponent<LineRenderer> ().SetPosition(0,transform.position);
 	}
 	
 	// Whether the gun CAN shoot, not whether it will.
@@ -107,6 +123,7 @@ public class WeaponInstance : MonoBehaviour {
 	
 	// For each bullet leaving the gun, do this.
 	public void fire () {
+
 		//print ("Shooting weapon.");
 		RaycastHit hit = new RaycastHit();
 
@@ -118,7 +135,7 @@ public class WeaponInstance : MonoBehaviour {
 
 		Vector3 Innacc = Vector3.zero;
 		
-		if (Physics.Raycast (transform.TransformPoint (template.bulletSource), transform.parent.forward + Innacc, out hit)) {
+		if (Physics.Raycast (transform.TransformPoint (template.bulletSource), transform.forward + Innacc, out hit)) {
 			BulletData b = new BulletData(holder, template.damage);
 			//hit.transform.gameObject.SendMessage ("receiveShot",b);  				// Correct but sketchy feeling way of doing it.
 
@@ -135,7 +152,9 @@ public class WeaponInstance : MonoBehaviour {
 		}
 		 
 		holder.recoil(template.YRecoil, firedBurst+1);	// Burst+1 since it gets incremented in setState.
-		
+
+		XRecoilRot += Random.Range (-1, 2) * template.xRecoil;
+
 		// A bullet has been fired, so remove it from the queue, and get the action moving backwards.
 		setState(WeaponState.Arming);
 		remainingBurst --;
@@ -147,4 +166,6 @@ public class WeaponInstance : MonoBehaviour {
 		}
 	}
 }
+
+
 

@@ -45,9 +45,8 @@ public class WeaponTemplate : ScriptableObject {
 
 	// Animations go beneath here.
 
-	public CustomAnim cameraShake;
-	public CustomAnim reload;
-	public CustomAnim gunShake;	// Must reset in rearmTime or shorter! Camera shake handles offsetting.
+	public float xRecoil;
+	public float XRecoilAccel;
 
 	public WeaponInstance create (GameObject parent, int mags, HoldPos hp, Vector3 position = default(Vector3)) {
 		GameObject go = (GameObject)Instantiate (MainWeapon, parent.transform.position, parent.transform.rotation);
