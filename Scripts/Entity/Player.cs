@@ -27,9 +27,7 @@ public class Player : CombatantEntity {
 	private Vector3 moveDirection = Vector3.zero;
 
 	public WeaponTemplate starter;
-
-	// The parent function to use when calculating the recoil from a gun.
-	public AnimationCurve recoilParentCurve;
+	
 
 
 	public override void childStart() {
@@ -90,7 +88,7 @@ public class Player : CombatantEntity {
 	}
 
 	public override void recoil(float powerCoef, int sequence) {
-		recoilVel += recoilParentCurve.Evaluate (sequence) * powerCoef;
+		recoilVel += powerCoef;
 	}
 
 	public override void Move () {
