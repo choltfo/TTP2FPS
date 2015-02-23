@@ -17,6 +17,9 @@ public class Player : CombatantEntity {
 	public float minVert = -60;
 	private float rotationVert = 0F;
 
+	public float recoilVel = 0F;
+	public float recoilAbsorption = 100F;
+
 	public float sensitivtyHorizontal = 1;
 
 	public bool invertVertical = false;
@@ -60,6 +63,12 @@ public class Player : CombatantEntity {
 			}
 		}
 
+		if (recoilVel > 0) {
+			recoilVel -= recoilAbsorption * Time.deltaTime;
+			rotationVert -= recoilVel;
+		} else
+			recoilVel = 0;
+
 		if (Input.GetKeyDown (KeyCode.X)) {
 			weapons[currentWeapon].fireSelect = (weapons[currentWeapon].fireSelect + 1) % weapons[currentWeapon].template.fireModes.Length;
 		}
@@ -81,7 +90,7 @@ public class Player : CombatantEntity {
 	}
 
 	public override void recoil(float powerCoef, int sequence) {
-		rotationVert -= recoilParentCurve.Evaluate (sequence) * powerCoef;
+		recoilVel += recoilParentCurve.Evaluate (sequence) * powerCoef;
 	}
 
 	public override void Move () {
