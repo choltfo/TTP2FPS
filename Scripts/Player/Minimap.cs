@@ -14,6 +14,6 @@ public class Minimap : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		mmCamera.pixelRect = new Rect (Screen.width-rightBorder - size,Screen.height-topBorder-size, size, size);
-		mmOverlay.rect.Set(Screen.width-rightBorder - size,Screen.height-topBorder-size, size, size);
+		//mmOverlay.size(Screen.width-rightBorder - size,Screen.height-topBorder-size, size, size);
 	}
 }

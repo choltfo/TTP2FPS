@@ -85,6 +85,8 @@ public class WeaponInstance : MonoBehaviour {
 		return Mathf.Clamp01 (-XRecoilRot) * template.XRecoilAccel;
 	}
 
+	// TODO: Handling lag, i.e, the gun lags behind the player's perspective. Perhaps use a frame-delayed rotation change, or a hinge?
+
 	void Update() {
 		if (state == WeaponState.Arming && lastStateChange + template.rearmTime < Time.time) setState(WeaponState.None);
 
@@ -92,16 +94,12 @@ public class WeaponInstance : MonoBehaviour {
 			fire ();
 		}
 
-		if (Mathf.Abs (XRecoilRot) < 0.1) {
-			XRecoilRot = 0;
-			//XRecoilVel = 0;
-		}// else XRecoilVel -= Mathf.Sign (XRecoilRot) * template.XRecoilAccel * Time.deltaTime;
-
-		XRecoilVel = Mathf.Lerp (XRecoilVel,getVelTowardsCenter(),Time.deltaTime*template.XRecoilAccel);
+		XRecoilVel = -XRecoilRot*10;//Mathf.Lerp (XRecoilVel,getVelTowardsCenter(),Time.deltaTime*template.XRecoilAccel);
 
 		XRecoilRot += XRecoilVel * Time.deltaTime;
 
 		transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, XRecoilRot, transform.localEulerAngles.z);
+
 
 
 		transform.localPosition = Vector3.Lerp (lastHoldPos, holdPos == HoldPos.scope ? template.scopePos : template.holdPos, (Time.time - holdChangeTime)/template.scopeTime);
