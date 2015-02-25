@@ -4,7 +4,9 @@ using UnityEditor;
 public class WeaponTemplate : ScriptableObject {
 	public string Name;
 	public GameObject MainWeapon;	// Prefab reference.
-	public string AS = "Sound";
+	public AudioClip sound;
+	public GameObject soundSource;
+	public Vector3 soundSourcePos;
 
 	public Vector3 bulletSource;
 	public float range;

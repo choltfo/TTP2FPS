@@ -6,8 +6,6 @@ public class WeaponInstance : MonoBehaviour {
 	// Notes:
 	// The 0 point of models should be exactly where the eye/camera would be if one were aiming down the sights properly.
 
-	public AudioSource AS;
-	
 	// The weapon template accessed to find prefabs and variables.
 	public WeaponTemplate template;
 
@@ -103,6 +101,7 @@ public class WeaponInstance : MonoBehaviour {
 
 
 		transform.localPosition = Vector3.Lerp (lastHoldPos, holdPos == HoldPos.scope ? template.scopePos : template.holdPos, (Time.time - holdChangeTime)/template.scopeTime);
+		transform.Translate (0,0,-Mathf.Abs(XRecoilRot)/100,Space.Self);
 
 	}
 	
@@ -127,7 +126,9 @@ public class WeaponInstance : MonoBehaviour {
 
 		//animCont.SetInteger ("State",1);
 
+		GameObject audio = (GameObject)Instantiate (template.soundSource, transform.TransformPoint(template.soundSourcePos), new Quaternion());
 
+		audio.GetComponent<GunshotAudio> ().soundClip = template.sound;
 
 		// TODO: Charles: Add inaccuracy.
 
@@ -140,6 +141,9 @@ public class WeaponInstance : MonoBehaviour {
 			Debug.DrawLine(transform.TransformPoint (template.bulletSource), hit.point, Color.green, 100);
 			Debug.DrawLine(transform.TransformPoint (template.bulletSource), transform.position, Color.red, 100);
 
+
+
+			// Sketchy but correct feeling way of doing it.
 			BulletReceiver h = hit.transform.gameObject.GetComponent<BulletReceiver>();
 			if (h != null) {
 				h.ReceiveShot(b);
@@ -151,7 +155,7 @@ public class WeaponInstance : MonoBehaviour {
 		 
 		holder.recoil(template.YRecoil, firedBurst+1);	// Burst+1 since it gets incremented in setState.
 
-		XRecoilRot += Random.Range (-1, 2) * template.xRecoil;
+		XRecoilRot += ((Random.Range (-1, 1)*2)+1) * template.xRecoil;
 
 		// A bullet has been fired, so remove it from the queue, and get the action moving backwards.
 		setState(WeaponState.Arming);
