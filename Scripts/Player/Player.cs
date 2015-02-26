@@ -31,7 +31,7 @@ public class Player : CombatantEntity {
 
 
 	public override void childStart() {
-		weapons [0] = starter.create (head, 2, HoldPos.hold);
+		if (starter) weapons [0] = starter.create (head, 2, HoldPos.hold, this);
 	}
 
 	void handleLook() {
@@ -48,7 +48,7 @@ public class Player : CombatantEntity {
 
 	public override void childUpdate () {
 		handleLook ();
-		if (weapons.Length != 0) {
+		if (weapons.Length != 0 && weapons[currentWeapon]) {
 			int[] fm = weapons [currentWeapon].template.fireModes;
 			if (fm[weapons [currentWeapon].fireSelect] == 0) {
 				if (Input.GetMouseButton (0)) {				// Automatic, fireMode is 0.
@@ -57,6 +57,15 @@ public class Player : CombatantEntity {
 			} else {
 				if (Input.GetMouseButtonDown (0)) {			// Burst or semi otherwise.
 					weapons [currentWeapon].trigger (this);
+				}
+			}
+			if (Input.GetKeyDown (KeyCode.R)) {
+				weapons[currentWeapon].reload();
+			}
+			
+			if (weapons [currentWeapon].template.canAim) { 
+				if (Input.GetMouseButtonDown (1)) {
+					weapons[currentWeapon].setHoldPos(weapons[currentWeapon].holdPos == HoldPos.scope ? HoldPos.hold : HoldPos.scope);
 				}
 			}
 		}
@@ -68,27 +77,41 @@ public class Player : CombatantEntity {
 			recoilVel = 0;
 
 		if (Input.GetKeyDown (KeyCode.X)) {
-			weapons[currentWeapon].fireSelect = (weapons[currentWeapon].fireSelect + 1) % weapons[currentWeapon].template.fireModes.Length;
-		}
-
-		/*float wheelIn = Input.GetAxis ("Mouse ScrollWheel");
-		if (wheelIn != 0 && weapons.Length != 0) {
-			print("Changed curweap, deploying weapon!");
-			weapons[currentWeapon].gameObject.SetActive(false);
-			currentWeapon += (wheelIn > 0 ? 1 : -1);
-			weapons[currentWeapon].gameObject.SetActive(true);
-		}*/
-
-		if (weapons [currentWeapon].template.canAim) { 
-			if (Input.GetMouseButtonDown (1)) {
-				weapons[currentWeapon].setHoldPos(weapons[currentWeapon].holdPos == HoldPos.scope ? HoldPos.hold : HoldPos.scope);
-			}
+			weapons[currentWeapon].incrementFireSelect();
 		}
 		
 	}
 
-	public override void recoil(float powerCoef, int sequence) {
+	public override void recoil(float powerCoef) {
 		recoilVel += powerCoef;
+	}
+
+	// Draw GUI, enumerate pickup options.
+	void OnGUI () {
+		Collider[] hits = Physics.OverlapSphere (transform.position, 10);
+
+		// TODO: Use for allowing pickups.
+		Collider best = null;
+		float prox = float.MaxValue;
+
+		foreach (Collider hit in hits) {
+			if (hit != collider) { 
+				Vector3 sPos = head.camera.WorldToScreenPoint(hit.transform.position);
+				sPos.x = Mathf.Clamp(sPos.x, 0, Screen.width-100);
+				sPos.y = Screen.height - Mathf.Clamp(sPos.y, 20, Screen.height);
+
+				if (Vector3.Distance(transform.position, hit.transform.position) <  prox) {
+					WeaponInstance pickupWI = hit.gameObject.GetComponent<WeaponInstance>();
+					if (pickupWI) {
+						best = hit;
+						prox = Vector3.Distance(transform.position, hit.transform.position);
+						GUI.Box(new Rect(sPos.x, sPos.y, 100,20), "PICKUP");
+					}
+				}
+
+				GUI.Box(new Rect(sPos.x, sPos.y, 100,20), hit.name);
+			}
+		}
 	}
 
 	public override void Move () {

@@ -7,7 +7,6 @@ public class GunshotAudio : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		print (transform.position);
 		audio.clip = soundClip;
 		audio.Play ();
 	}

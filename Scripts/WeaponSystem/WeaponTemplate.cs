@@ -4,7 +4,6 @@ using UnityEditor;
 public class WeaponTemplate : ScriptableObject {
 	public string Name;
 	public GameObject MainWeapon;	// Prefab reference.
-	public AudioClip sound;
 	public GameObject soundSource;
 	public Vector3 soundSourcePos;
 
@@ -50,20 +49,28 @@ public class WeaponTemplate : ScriptableObject {
 	public float xRecoil;
 	public float XRecoilAccel;
 
-	public WeaponInstance create (GameObject parent, int mags, HoldPos hp, Vector3 position = default(Vector3)) {
+	public AudioClip soundFire;
+	public AudioClip soundReload;
+	public AudioClip soundFireSelect;
+	public AudioClip soundDryFire;
+
+	public WeaponInstance create (GameObject parent, int mags, HoldPos hp, CombatantEntity owner, Vector3 position = default(Vector3)) {
 		GameObject go = (GameObject)Instantiate (MainWeapon, parent.transform.position, parent.transform.rotation);
 		go.transform.parent = parent.transform;
 		go.transform.localEulerAngles = Vector3.zero;
-		WeaponInstance w = go.AddComponent<WeaponInstance> ();
+
+		WeaponInstance w = go.GetComponent<WeaponInstance> ();
+		if (!w) w = go.AddComponent<WeaponInstance> ();
+
 		//w.AS = go.transform.Find (AS).gameObject.audio;
 		w.template = this;
 		w.magazine = magSize;
-		w.ammoReserve = mags * magSize;
+
+		// TODO: This will be a problem if ever the player receives a gun with no mags....
+		if (w.ammoReserve == 0) w.ammoReserve = mags * magSize;
 		w.holdPos = hp;
 		w.state = WeaponState.None;
-
-		w.animCont = go.GetComponent<Animator>();
-		//w.animCont.
+		w.holder = owner;
 
 		if (hp == HoldPos.hold) {
 			go.transform.Translate(holdPos, Space.Self);

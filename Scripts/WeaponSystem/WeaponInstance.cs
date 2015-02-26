@@ -21,7 +21,7 @@ public class WeaponInstance : MonoBehaviour {
 	/*
 		On remainingBurst:
 		This controls how many bullets should be fired before the next trigger pull is accepted.
-		If it is 0, then no bullets should be fired. If it is >0, that means that that many rounds should be fired before the next trigger pull is accepted.
+		If it is 0, then no bullets should be fired. If it is > 0, that means that that many rounds should be fired before the next trigger pull is accepted.
 		If the gun is in automatic, then the variable should be held at 1 by external input. Thus, the gun should keep firing until the trigger is released.
 			This is, effectively, the same as semi automatic, but needs external resetting after each shot.
 		This should be handled in the CombatantEntity class, where a check between automatic and burst weapons must be made before attempting to fire.
@@ -35,12 +35,6 @@ public class WeaponInstance : MonoBehaviour {
 
 
 	public WeaponState state = WeaponState.None;
-	/*	set {
-			state = value;
-			lastStateChange = Time.time;
-		}
-		get { return state;}
-	}*/
 
 	public CombatantEntity holder;
 
@@ -55,6 +49,8 @@ public class WeaponInstance : MonoBehaviour {
 
 	Vector3 lastHoldPos;
 
+	bool hasDryFired = false;
+
 
 	public void setHoldPos (HoldPos Val) {
 		lastHoldPos = transform.localPosition;
@@ -62,19 +58,32 @@ public class WeaponInstance : MonoBehaviour {
 		holdChangeTime = Time.time;
 	}
 
+	public void incrementFireSelect () {
+		fireSelect = (fireSelect + 1) % template.fireModes.Length;
+		GameObject audio = (GameObject)Instantiate (template.soundSource, transform.TransformPoint(template.soundSourcePos), new Quaternion());
+		audio.transform.parent = transform;
+		audio.GetComponent<GunshotAudio> ().soundClip = template.soundDryFire;
+		holder.recoil(1);
+		XRecoilVel += 0.5f;
+
+	}
 
 	// TODO: Add a function that allows for LERPing between the positions ONLY WHEN NECESSARY.
 	public AnimState animState = new AnimState();
-
-	public Animator animCont;
 	
 	// To be called continually for automatic, or intermittently for a semi or burst weapon.
 	public bool trigger (CombatantEntity shooter) {
 		holder = shooter;
-		if (remainingBurst == 0 && canFire()) {
+		if (remainingBurst == 0 && canFire ()) {
 			// Potential source of failure!
-			remainingBurst = (template.fireModes[fireSelect] == 0 ? 1 : template.fireModes[fireSelect]);
+			remainingBurst = (template.fireModes [fireSelect] == 0 ? 1 : template.fireModes [fireSelect]);
 			return true;
+		}
+		if (magazine == 0 && !hasDryFired) {
+			GameObject audio = (GameObject)Instantiate (template.soundSource, transform.TransformPoint(template.soundSourcePos), new Quaternion());
+			audio.transform.parent = transform;
+			audio.GetComponent<GunshotAudio> ().soundClip = template.soundDryFire;
+			hasDryFired = true;
 		}
 		return false;
 	}
@@ -92,14 +101,21 @@ public class WeaponInstance : MonoBehaviour {
 			fire ();
 		}
 
+		if (state == WeaponState.Reloading && !animation.isPlaying) {
+			state = WeaponState.None; 
+			int removedRounds = template.magSize - magazine;
+			if (removedRounds > ammoReserve) removedRounds = ammoReserve;
+			magazine += removedRounds;
+			ammoReserve -= removedRounds;
+
+			hasDryFired = false;
+		}
+
 		XRecoilVel = -XRecoilRot*10;//Mathf.Lerp (XRecoilVel,getVelTowardsCenter(),Time.deltaTime*template.XRecoilAccel);
 
 		XRecoilRot += XRecoilVel * Time.deltaTime;
 
 		transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, XRecoilRot, transform.localEulerAngles.z);
-
-
-
 		transform.localPosition = Vector3.Lerp (lastHoldPos, holdPos == HoldPos.scope ? template.scopePos : template.holdPos, (Time.time - holdChangeTime)/template.scopeTime);
 		transform.Translate (0,0,-Mathf.Abs(XRecoilRot)/100,Space.Self);
 
@@ -117,6 +133,28 @@ public class WeaponInstance : MonoBehaviour {
 		lastStateChange = Time.time;
 		state = s;
 	}
+
+	// Returns: 
+	// 0 - Reloaded properly.
+	// 1 - Last mag. Perhaps a shout of some sort?
+	// 2 - Out of ammo. Perhaps a different shout?
+	// 3 - Failed somehow else.
+	public int reload() {
+		//animation
+		if (magazine < template.magSize && ammoReserve > 0) {
+			animation.Play();
+			state = WeaponState.Reloading;
+
+			GameObject audio = (GameObject)Instantiate (template.soundSource, transform.TransformPoint(template.soundSourcePos), new Quaternion());
+			audio.transform.parent = transform;
+			audio.GetComponent<GunshotAudio> ().soundClip = template.soundReload;
+
+			return ammoReserve < template.magSize ? 1 : 0;
+		}
+		if (ammoReserve < 1) return 1;
+
+		return 3;
+	}
 	
 	// For each bullet leaving the gun, do this.
 	public void fire () {
@@ -127,8 +165,7 @@ public class WeaponInstance : MonoBehaviour {
 		//animCont.SetInteger ("State",1);
 
 		GameObject audio = (GameObject)Instantiate (template.soundSource, transform.TransformPoint(template.soundSourcePos), new Quaternion());
-
-		audio.GetComponent<GunshotAudio> ().soundClip = template.sound;
+		audio.GetComponent<GunshotAudio> ().soundClip = template.soundFire;
 
 		// TODO: Charles: Add inaccuracy.
 
@@ -141,8 +178,6 @@ public class WeaponInstance : MonoBehaviour {
 			Debug.DrawLine(transform.TransformPoint (template.bulletSource), hit.point, Color.green, 100);
 			Debug.DrawLine(transform.TransformPoint (template.bulletSource), transform.position, Color.red, 100);
 
-
-
 			// Sketchy but correct feeling way of doing it.
 			BulletReceiver h = hit.transform.gameObject.GetComponent<BulletReceiver>();
 			if (h != null) {
@@ -153,7 +188,7 @@ public class WeaponInstance : MonoBehaviour {
 			//print("Hit " + hit.transform.name + " with " + template.name);
 		}
 		 
-		holder.recoil(template.YRecoil, firedBurst+1);	// Burst+1 since it gets incremented in setState.
+		holder.recoil(template.YRecoil);	// Burst+1 since it gets incremented in setState.
 
 		XRecoilRot += ((Random.Range (-1, 1)*2)+1) * template.xRecoil;
 
