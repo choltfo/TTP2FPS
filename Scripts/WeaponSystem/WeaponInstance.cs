@@ -98,8 +98,14 @@ public class WeaponInstance : MonoBehaviour {
 		holder = null;
 		transform.parent = null;
 	}
+	
+	// Cramm initialization into here!
+	public void init() {
+		holdPos = HoldPos.hold;
+	}
 
 	// TODO: Handling lag, i.e, the gun lags behind the player's perspective. Perhaps use a frame-delayed rotation change, or a hinge?
+	// TODO: Make guns finish firing bursts when dropped. :D
 	void Update() {
 		if (holder == null) {
 			collider.enabled = true;

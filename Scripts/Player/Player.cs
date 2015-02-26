@@ -110,11 +110,32 @@ public class Player : CombatantEntity {
 				if (weapons[slot] != null) weapons[slot].drop();
 				weapons[slot] = pickup;
 				
-				pickup.transform.parent = head.transform;
-				pickup.holder = this;
+				weapons[slot].transform.parent = head.transform;
+				weapons[slot].holder = this;
+				weapons[slot].init ();
+				weapons[slot].holdPos = HoldPos.hold;
+				weapons[slot].gameObject.SetActive(true);
+				
+				switchWeapons(slot);
 			}
 		}
 		
+		if (Input.GetAxis("Mouse ScrollWheel") > 0) {
+			switchWeapons((currentWeapon+1) % weapons.Length);
+		}
+		
+	}
+	
+	public void switchWeapons(int newWeap) {
+		if (weapons[currentWeapon] != null) {
+			weapons[currentWeapon].holdPos = HoldPos.hold;
+			weapons[currentWeapon].gameObject.SetActive(false);
+		}
+		currentWeapon = newWeap;
+		if (weapons[currentWeapon] != null) {
+			weapons[currentWeapon].holdPos = HoldPos.hold;
+			weapons[currentWeapon].gameObject.SetActive(true);
+		}
 	}
 
 	public override void recoil(float powerCoef) {
