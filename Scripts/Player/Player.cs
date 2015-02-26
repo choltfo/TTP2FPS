@@ -28,7 +28,9 @@ public class Player : CombatantEntity {
 
 	public WeaponTemplate starter;
 	
-
+	
+	private WeaponInstance pickup;
+	
 
 	public override void childStart() {
 		if (starter) weapons [0] = starter.create (head, 2, HoldPos.hold, this);
@@ -80,6 +82,39 @@ public class Player : CombatantEntity {
 			weapons[currentWeapon].incrementFireSelect();
 		}
 		
+		
+		pickup = null;
+		Collider[] hits = Physics.OverlapSphere (transform.position, 10);
+		
+		// TODO: Use for allowing pickups.
+		float prox = float.MaxValue;
+		
+		foreach (Collider hit in hits) {
+			if (hit != collider) { 
+				if (Vector3.Distance(transform.position, hit.transform.position) <  prox) {
+					WeaponInstance pickupWI = hit.gameObject.GetComponent<WeaponInstance>();
+					if (pickupWI) {
+						pickup = pickupWI;
+						prox = Vector3.Distance(transform.position, hit.transform.position);
+					}
+				}
+			}
+		}
+		
+		if (pickup != null) {
+			if (Input.GetKeyDown(KeyCode.E)) {
+				int slot = chooseSlot();
+				
+				print ("Attempting pickup of " + pickup.template.Name);
+				
+				if (weapons[slot] != null) weapons[slot].drop();
+				weapons[slot] = pickup;
+				
+				pickup.transform.parent = head.transform;
+				pickup.holder = this;
+			}
+		}
+		
 	}
 
 	public override void recoil(float powerCoef) {
@@ -88,30 +123,17 @@ public class Player : CombatantEntity {
 
 	// Draw GUI, enumerate pickup options.
 	void OnGUI () {
-		Collider[] hits = Physics.OverlapSphere (transform.position, 10);
-
-		// TODO: Use for allowing pickups.
-		Collider best = null;
-		float prox = float.MaxValue;
-
-		foreach (Collider hit in hits) {
-			if (hit != collider) { 
-				Vector3 sPos = head.camera.WorldToScreenPoint(hit.transform.position);
-				sPos.x = Mathf.Clamp(sPos.x, 0, Screen.width-100);
-				sPos.y = Screen.height - Mathf.Clamp(sPos.y, 20, Screen.height);
-
-				if (Vector3.Distance(transform.position, hit.transform.position) <  prox) {
-					WeaponInstance pickupWI = hit.gameObject.GetComponent<WeaponInstance>();
-					if (pickupWI) {
-						best = hit;
-						prox = Vector3.Distance(transform.position, hit.transform.position);
-						GUI.Box(new Rect(sPos.x, sPos.y, 100,20), "PICKUP");
-					}
-				}
-
-				GUI.Box(new Rect(sPos.x, sPos.y, 100,20), hit.name);
-			}
+		if (pickup != null) {
+			Vector3 sPos = head.camera.WorldToScreenPoint(pickup.transform.position);
+			sPos.x = Mathf.Clamp(sPos.x, 0, Screen.width-100);
+			sPos.y = Screen.height - Mathf.Clamp(sPos.y, 20, Screen.height);
+			GUI.Box(new Rect(sPos.x, sPos.y, 100,20), pickup.template.Name);
 		}
+	}
+
+	public int chooseSlot() {
+		for (int i = 0; i < weapons.Length; i++) if (!weapons[i]) return i;
+		return currentWeapon;
 	}
 
 	public override void Move () {
