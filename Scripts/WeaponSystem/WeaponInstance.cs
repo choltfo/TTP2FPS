@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+[RequireComponent(typeof(Animation), typeof(Rigidbody), typeof(Collider)]
 public class WeaponInstance : MonoBehaviour {
 
 	// Notes:
