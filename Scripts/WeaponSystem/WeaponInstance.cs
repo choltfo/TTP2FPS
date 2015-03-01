@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-[RequireComponent(typeof(Animation), typeof(Rigidbody), typeof(Collider)]
+[RequireComponent (typeof(Animation))]
+[RequireComponent (typeof(Rigidbody))]
+[RequireComponent (typeof(Collider))]
 public class WeaponInstance : MonoBehaviour {
 
 	// Notes:
@@ -165,6 +167,7 @@ public class WeaponInstance : MonoBehaviour {
 		if (magazine < template.magSize && ammoReserve > 0) {
 			animation.Play();
 			state = WeaponState.Reloading;
+			holdPos = HoldPos.hold;
 
 			GameObject audio = (GameObject)Instantiate (template.soundSource, transform.TransformPoint(template.soundSourcePos), new Quaternion());
 			audio.transform.parent = transform;
