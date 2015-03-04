@@ -28,7 +28,6 @@ public class Player : CombatantEntity {
 
 	public WeaponTemplate starter;
 	
-	
 	private WeaponInstance pickup;
 	
 
@@ -86,11 +85,10 @@ public class Player : CombatantEntity {
 		pickup = null;
 		Collider[] hits = Physics.OverlapSphere (transform.position, 10);
 		
-		// TODO: Use for allowing pickups.
 		float prox = float.MaxValue;
 		
 		foreach (Collider hit in hits) {
-			if (hit != collider) { 
+			if (hit != GetComponent<Collider>()) { 
 				if (Vector3.Distance(transform.position, hit.transform.position) <  prox) {
 					WeaponInstance pickupWI = hit.gameObject.GetComponent<WeaponInstance>();
 					if (pickupWI) {
@@ -127,14 +125,14 @@ public class Player : CombatantEntity {
 	}
 	
 	public void switchWeapons(int newWeap) {
-		if (weapons[currentWeapon] != null) {
-			weapons[currentWeapon].holdPos = HoldPos.hold;
-			weapons[currentWeapon].gameObject.SetActive(false);
-		}
-		currentWeapon = newWeap;
-		if (weapons[currentWeapon] != null) {
-			weapons[currentWeapon].holdPos = HoldPos.hold;
-			weapons[currentWeapon].gameObject.SetActive(true);
+		if (weapons[newWeap] != null) {
+			if (weapons[currentWeapon] != null) {
+				weapons[currentWeapon].disableWeapon();
+			}
+			currentWeapon = newWeap;
+			if (weapons[currentWeapon] != null) {
+				weapons[currentWeapon].enableWeapon();
+			}
 		}
 	}
 
@@ -145,7 +143,7 @@ public class Player : CombatantEntity {
 	// Draw GUI, enumerate pickup options.
 	void OnGUI () {
 		if (pickup != null) {
-			Vector3 sPos = head.camera.WorldToScreenPoint(pickup.transform.position);
+			Vector3 sPos = head.GetComponent<Camera>().WorldToScreenPoint(pickup.transform.position);
 			sPos.x = Mathf.Clamp(sPos.x, 0, Screen.width-100);
 			sPos.y = Screen.height - Mathf.Clamp(sPos.y, 20, Screen.height);
 			GUI.Box(new Rect(sPos.x, sPos.y, 100,20), pickup.template.Name);

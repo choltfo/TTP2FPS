@@ -71,6 +71,7 @@ public class WeaponInstance : MonoBehaviour {
 
 	}
 
+	// TODO: Add multiple segments of animations, i.e, remove mag, insert mag, bolt catch, charge, etc.
 	// TODO: Add a function that allows for LERPing between the positions ONLY WHEN NECESSARY.
 	public AnimState animState = new AnimState();
 	
@@ -96,27 +97,41 @@ public class WeaponInstance : MonoBehaviour {
 	}
 	
 	public void drop() {
-		collider.enabled = true;
-		rigidbody.WakeUp();
+		GetComponent<Collider>().enabled = true;
+		GetComponent<Rigidbody>().WakeUp();
 		holder = null;
 		transform.parent = null;
 	}
 	
 	// Cramm initialization into here!
+	// Called on pickup.
 	public void init() {
 		holdPos = HoldPos.hold;
+	}
+	
+	public void enableWeapon() {
+		if (state == WeaponState.Reloading) GetComponent<Animation>().Play();
+		holdPos = HoldPos.hold;
+		gameObject.SetActive(true);
+	}
+	
+	public void disableWeapon() {
+		GetComponent<Animation>().Rewind();
+		GetComponent<Animation>().Stop();
+		holdPos = HoldPos.hold;
+		gameObject.SetActive(false);
 	}
 
 	// TODO: Handling lag, i.e, the gun lags behind the player's perspective. Perhaps use a frame-delayed rotation change, or a hinge?
 	// TODO: Make guns finish firing bursts when dropped. :D
 	void Update() {
 		if (holder == null) {
-			collider.enabled = true;
-			rigidbody.WakeUp();
+			GetComponent<Collider>().enabled = true;
+			GetComponent<Rigidbody>().WakeUp();
 			return;
 		}
-		rigidbody.Sleep();
-		collider.enabled = false;
+		GetComponent<Rigidbody>().Sleep();
+		GetComponent<Collider>().enabled = false;
 
 		if (state == WeaponState.Arming && lastStateChange + template.rearmTime < Time.time) setState(WeaponState.None);
 
@@ -124,8 +139,9 @@ public class WeaponInstance : MonoBehaviour {
 			fire ();
 		}
 
-		if (state == WeaponState.Reloading && !animation.isPlaying) {
-			state = WeaponState.None; 
+		if (state == WeaponState.Reloading && !GetComponent<Animation>().isPlaying) {
+			
+			state = WeaponState.None;
 			int removedRounds = template.magSize - magazine;
 			if (removedRounds > ammoReserve) removedRounds = ammoReserve;
 			magazine += removedRounds;
@@ -165,7 +181,7 @@ public class WeaponInstance : MonoBehaviour {
 	public int reload() {
 		//animation
 		if (magazine < template.magSize && ammoReserve > 0) {
-			animation.Play();
+			GetComponent<Animation>().Play();
 			state = WeaponState.Reloading;
 			holdPos = HoldPos.hold;
 

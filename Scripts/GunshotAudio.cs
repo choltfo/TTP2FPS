@@ -7,12 +7,12 @@ public class GunshotAudio : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		audio.clip = soundClip;
-		audio.Play ();
+		GetComponent<AudioSource>().clip = soundClip;
+		GetComponent<AudioSource>().Play ();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if (!audio.isPlaying) Destroy(gameObject);
+		if (!GetComponent<AudioSource>().isPlaying) Destroy(gameObject);
 	}
 }
