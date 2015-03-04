@@ -88,12 +88,14 @@ public class Player : CombatantEntity {
 		float prox = float.MaxValue;
 		
 		foreach (Collider hit in hits) {
-			if (hit != GetComponent<Collider>()) { 
-				if (Vector3.Distance(transform.position, hit.transform.position) <  prox) {
-					WeaponInstance pickupWI = hit.gameObject.GetComponent<WeaponInstance>();
-					if (pickupWI) {
-						pickup = pickupWI;
-						prox = Vector3.Distance(transform.position, hit.transform.position);
+			if (Vector3.Angle(head.transform.forward, hit.transform.position - head.transform.position) < 45) {
+				if (hit != GetComponent<Collider>()) { 
+					if (Vector3.Distance(transform.position, hit.transform.position) <  prox) {
+						WeaponInstance pickupWI = hit.gameObject.GetComponent<WeaponInstance>();
+						if (pickupWI) {
+							pickup = pickupWI;
+							prox = Vector3.Distance(transform.position, hit.transform.position);
+						}
 					}
 				}
 			}
