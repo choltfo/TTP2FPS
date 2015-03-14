@@ -141,14 +141,54 @@ public class Player : CombatantEntity {
 	public override void recoil(float powerCoef) {
 		recoilVel += powerCoef;
 	}
-
+	
+	int pickupWindowWidth = 150;
+	int pickupWindowHeight = 100;
+	int comparisonWindowHeight = 100;
+	
+	int layoutLabel (string text, int y) {
+		GUI.Label(new Rect(4, (float)y, pickupWindowWidth, 20), text);
+		return y + 15;
+	}
+	
+	// Returns the height of the window.
+	int weaponDescriptionWindow (WeaponInstance weap, int height) {
+		GUI.Box(new Rect(0,0,pickupWindowWidth,height), weap.template.Name);
+		int y = 15;
+		y = layoutLabel("Damage:\t"+weap.template.damage+" pts", y);
+		y = layoutLabel("Range:\t"+weap.template.range+" m", y);
+		y = layoutLabel("Mag size:\t"+weap.template.magSize, y);
+		y = layoutLabel("Ammo:\t"+(weap.ammoReserve+pickup.magazine), y);
+		y = layoutLabel("Fire modes:\t", y);
+		for (int i = 0; i < weap.template.fireModes.Length; i++) {
+			//pickup.template.fireModes[i]
+			y = layoutLabel("    "+(weap.template.fireModes[i] == 0 ? "Auto" : (weap.template.fireModes[i] == 1 ? "Semi-auto" : weap.template.fireModes[i]+"-round burst")), y);
+		}
+		y = layoutLabel("Fire rate:\t"+(1/weap.template.rearmTime)*60 + " rpm", y);
+		
+		return y + 5;
+	}
+	
+	void pickupWindow (int id) {
+		pickupWindowHeight = weaponDescriptionWindow(pickup, pickupWindowHeight);
+	}
+	
+	void comparisonWindow (int id) {
+		comparisonWindowHeight = weaponDescriptionWindow(weapons[currentWeapon], comparisonWindowHeight);
+	}
+	
 	// Draw GUI, enumerate pickup options.
 	void OnGUI () {
 		if (pickup != null) {
 			Vector3 sPos = head.GetComponent<Camera>().WorldToScreenPoint(pickup.transform.position);
-			sPos.x = Mathf.Clamp(sPos.x, 0, Screen.width-100);
-			sPos.y = Screen.height - Mathf.Clamp(sPos.y, 20, Screen.height);
-			GUI.Box(new Rect(sPos.x, sPos.y, 100,20), pickup.template.Name);
+			sPos.x = Mathf.Clamp(sPos.x, 0, Screen.width-pickupWindowWidth);
+			sPos.y = Screen.height - Mathf.Clamp(sPos.y, pickupWindowHeight, Screen.height);
+			//GUI.Box(, pickup.template.Name);
+			GUI.Window(0, new Rect(sPos.x, sPos.y, pickupWindowWidth,pickupWindowHeight), pickupWindow, "");
+			if (weapons[currentWeapon]) {
+				GUI.Window(1, new Rect(Screen.width-pickupWindowWidth, Screen.height-comparisonWindowHeight,
+					pickupWindowWidth,pickupWindowHeight), comparisonWindow, "");
+			}
 		}
 	}
 
