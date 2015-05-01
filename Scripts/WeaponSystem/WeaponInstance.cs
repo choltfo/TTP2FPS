@@ -126,11 +126,16 @@ public class WeaponInstance : MonoBehaviour {
 		if (sprinting) {
 			GetComponent<Animation>().Rewind();
 			GetComponent<Animation>().Stop();
-			//GetComponent<Animation>().Play(template.sprintAnimName);
-			GetComponent<Animation>().Play();
+			GetComponent<Animation>().Play(template.sprintAnimName);
+			//GetComponent<Animation>().Play();
+			print("Animation " + template.sprintAnimName + " exists: " + (GetComponent<Animation>()[template.sprintAnimName] != null));
 		} else {
 			GetComponent<Animation>().Rewind();
 			GetComponent<Animation>().Stop();
+			GetComponent<Animation>().Play (template.reloadAnimName);
+			GetComponent<Animation>().Stop();
+			GetComponent<Animation>().Rewind();
+			print("Ending sprint animation playback.");
 		}
 	}
 
@@ -146,7 +151,7 @@ public class WeaponInstance : MonoBehaviour {
 		GetComponent<Collider>().enabled = false;
 		
 		float bestWeight = -1.0F;
-		string playing = "";
+		/*string playing = "";
 		foreach (AnimationState s in GetComponent<Animation>()) {
 			if (s.enabled && s.weight > bestWeight) {
 				playing = s.name;
@@ -154,7 +159,7 @@ public class WeaponInstance : MonoBehaviour {
 			}
 		}
 		Debug.Log("Playing " + playing);
-		
+		*/
 
 		if (state == WeaponState.Arming && lastStateChange + template.rearmTime < Time.time) setState(WeaponState.None);
 
