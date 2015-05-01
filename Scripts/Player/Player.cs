@@ -9,6 +9,7 @@ public class Player : CombatantEntity {
 	public GameObject head;
 
 	public float speed = 6.0F;
+	public float sprintSpeed = 10.0F;
 	public float jumpSpeed = 8.0F;
 	public float gravity = 20.0F;
 
@@ -23,12 +24,16 @@ public class Player : CombatantEntity {
 	public float sensitivtyHorizontal = 1;
 
 	public bool invertVertical = false;
-
+	
+	public bool sprinting = false;
+	
 	private Vector3 moveDirection = Vector3.zero;
 
 	public WeaponTemplate starter;
 	
 	private WeaponInstance pickup;
+	
+	
 	
 
 	public override void childStart() {
@@ -196,18 +201,30 @@ public class Player : CombatantEntity {
 		for (int i = 0; i < weapons.Length; i++) if (!weapons[i]) return i;
 		return currentWeapon;
 	}
+	
+	public void setSprinting(bool newValue) {
+		if (sprinting != newValue) {
+			sprinting = newValue;
+			if (weapons[currentWeapon]!=null) weapons[currentWeapon].setSprinting(newValue);
+		}
+	}
 
 	public override void Move () {
 		if (c.isGrounded) {
+			setSprinting(Input.GetKey(KeyCode.LeftShift));
 			moveDirection = new Vector3(Input.GetAxis("Horizontal"+playerNumber), 0, Input.GetAxis("Vertical"+playerNumber));
 			moveDirection = transform.TransformDirection(moveDirection);
-			moveDirection *= speed;
+			moveDirection *= sprinting ? sprintSpeed : speed;
 			if (Input.GetButton("Jump"+playerNumber))
 				moveDirection.y = jumpSpeed;
-			
-		}
+		} else setSprinting(false);
+		
 		moveDirection.y -= gravity * Time.deltaTime;
 		c.Move(moveDirection * Time.deltaTime);
 	}
 }
+
+
+
+
 

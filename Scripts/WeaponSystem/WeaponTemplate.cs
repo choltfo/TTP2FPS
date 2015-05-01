@@ -12,12 +12,10 @@ public class WeaponTemplate : ScriptableObject {
 
 	public Vector3 scopePos;
 	public Vector3 holdPos;
-
-	/*
-	public float zRecoil;	// Force applied backwards to the shooter.
-	public float xRecoil;	// Maximum sway from a shot. Applied on Y-axis.
-	public float yRecoil;	// Maximum vertical sway. Applied on X-axis.
-	*/
+	
+	public string reloadAnimName = "CHANGE THIS";
+	public string sprintAnimName = "CHANGE THIS";
+	
 	public float YRecoil; // Recoil coeffecient for recoil() on CombatatEntity.
 
 	public int magSize;
