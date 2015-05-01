@@ -121,6 +121,18 @@ public class WeaponInstance : MonoBehaviour {
 		holdPos = HoldPos.hold;
 		gameObject.SetActive(false);
 	}
+	
+	public void setSprinting(bool sprinting) {
+		if (sprinting) {
+			GetComponent<Animation>().Rewind();
+			GetComponent<Animation>().Stop();
+			//GetComponent<Animation>().Play(template.sprintAnimName);
+			GetComponent<Animation>().Play();
+		} else {
+			GetComponent<Animation>().Rewind();
+			GetComponent<Animation>().Stop();
+		}
+	}
 
 	// TODO: Handling lag, i.e, the gun lags behind the player's perspective. Perhaps use a frame-delayed rotation change, or a hinge?
 	// TODO: Make guns finish firing bursts when dropped. :D
@@ -132,6 +144,17 @@ public class WeaponInstance : MonoBehaviour {
 		}
 		GetComponent<Rigidbody>().Sleep();
 		GetComponent<Collider>().enabled = false;
+		
+		float bestWeight = -1.0F;
+		string playing = "";
+		foreach (AnimationState s in GetComponent<Animation>()) {
+			if (s.enabled && s.weight > bestWeight) {
+				playing = s.name;
+				bestWeight = s.weight;
+			}
+		}
+		Debug.Log("Playing " + playing);
+		
 
 		if (state == WeaponState.Arming && lastStateChange + template.rearmTime < Time.time) setState(WeaponState.None);
 
@@ -181,14 +204,17 @@ public class WeaponInstance : MonoBehaviour {
 	public int reload() {
 		//animation
 		if (magazine < template.magSize && ammoReserve > 0) {
+			// ANIM GetComponent<Animation>().Play(template.reloadAnimName);
 			GetComponent<Animation>().Play();
 			state = WeaponState.Reloading;
 			holdPos = HoldPos.hold;
 
 			GameObject audio = (GameObject)Instantiate (template.soundSource, transform.TransformPoint(template.soundSourcePos), new Quaternion());
-			audio.transform.parent = transform;
+			audio.transform.parent = transform.parent;
 			audio.GetComponent<GunshotAudio> ().soundClip = template.soundReload;
-
+			
+			
+			
 			return ammoReserve < template.magSize ? 1 : 0;
 		}
 		if (ammoReserve < 1) return 1;
