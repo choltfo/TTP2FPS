@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class Player : CombatantEntity {
 
@@ -33,11 +34,19 @@ public class Player : CombatantEntity {
 	
 	private WeaponInstance pickup;
 	
+	public RectTransform reticleTransform;
 	
+	public RawImage reticleImage;
+	
+	Color reticleColor = Color.clear;
 	
 
 	public override void childStart() {
 		if (starter) weapons [0] = starter.create (head, 2, HoldPos.hold, this);
+	}
+	
+	public override void shotNotify (BulletReceiver BR) {
+		reticleColor = Color.red;
 	}
 
 	void handleLook() {
@@ -70,10 +79,11 @@ public class Player : CombatantEntity {
 			}
 			
 			if (weapons [currentWeapon].template.canAim) { 
-				if (Input.GetMouseButtonDown (1)) {
-					weapons[currentWeapon].setHoldPos(weapons[currentWeapon].holdPos == HoldPos.scope ? HoldPos.hold : HoldPos.scope);
-				}
-			}
+				//if (Input.GetMouseButtonDown (1)) {
+				//	if (!sprinting) weapons[currentWeapon].setHoldPos(weapons[currentWeapon].holdPos == HoldPos.scope ? HoldPos.hold : HoldPos.scope);
+				//}
+				if (Input.GetMouseButton (1) == (weapons[currentWeapon].holdPos == HoldPos.hold) || sprinting) weapons[currentWeapon].setHoldPos((Input.GetMouseButton (1) && !sprinting) ? HoldPos.scope : HoldPos.hold);
+			} 
 		}
 
 		if (recoilVel > 0) {
@@ -195,6 +205,10 @@ public class Player : CombatantEntity {
 					pickupWindowWidth,pickupWindowHeight), comparisonWindow, "");
 			}
 		}
+		
+		reticleImage.color = reticleColor;
+		reticleColor = Color.Lerp(reticleColor, new Color(255,0,0,0), Time.deltaTime);
+		
 	}
 
 	public int chooseSlot() {

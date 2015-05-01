@@ -78,16 +78,18 @@ public class WeaponInstance : MonoBehaviour {
 	// To be called continually for automatic, or intermittently for a semi or burst weapon.
 	public bool trigger (CombatantEntity shooter) {
 		holder = shooter;
-		if (remainingBurst == 0 && canFire ()) {
-			// Potential source of failure!
-			remainingBurst = (template.fireModes [fireSelect] == 0 ? 1 : template.fireModes [fireSelect]);
-			return true;
-		}
-		if (magazine == 0 && !hasDryFired) {
-			GameObject audio = (GameObject)Instantiate (template.soundSource, transform.TransformPoint(template.soundSourcePos), new Quaternion());
-			audio.transform.parent = transform;
-			audio.GetComponent<GunshotAudio> ().soundClip = template.soundDryFire;
-			hasDryFired = true;
+		if (!GetComponent<Animation>().IsPlaying(template.sprintAnimName)) {
+			if (remainingBurst == 0 && canFire ()) {
+				// Potential source of failure!
+				remainingBurst = (template.fireModes [fireSelect] == 0 ? 1 : template.fireModes [fireSelect]);
+				return true;
+			}
+			if (magazine == 0 && !hasDryFired) {
+				GameObject audio = (GameObject)Instantiate (template.soundSource, transform.TransformPoint(template.soundSourcePos), new Quaternion());
+				audio.transform.parent = transform;
+				audio.GetComponent<GunshotAudio> ().soundClip = template.soundDryFire;
+				hasDryFired = true;
+			}
 		}
 		return false;
 	}
@@ -110,13 +112,12 @@ public class WeaponInstance : MonoBehaviour {
 	}
 	
 	public void enableWeapon() {
-		if (state == WeaponState.Reloading) GetComponent<Animation>().Play();
+		if (state == WeaponState.Reloading) GetComponent<Animation>().Play(template.reloadAnimName);
 		holdPos = HoldPos.hold;
 		gameObject.SetActive(true);
 	}
 	
 	public void disableWeapon() {
-		GetComponent<Animation>().Rewind();
 		GetComponent<Animation>().Stop();
 		holdPos = HoldPos.hold;
 		gameObject.SetActive(false);
@@ -124,24 +125,26 @@ public class WeaponInstance : MonoBehaviour {
 	
 	public void setSprinting(bool sprinting) {
 		if (sprinting) {
-			GetComponent<Animation>().Rewind();
+			holdPos = HoldPos.hold;
 			GetComponent<Animation>().Stop();
 			GetComponent<Animation>().Play(template.sprintAnimName);
+			
 			//GetComponent<Animation>().Play();
-			print("Animation " + template.sprintAnimName + " exists: " + (GetComponent<Animation>()[template.sprintAnimName] != null));
+			//print("Animation " + template.sprintAnimName + " exists: " + (GetComponent<Animation>()[template.sprintAnimName] != null));
 		} else {
-			GetComponent<Animation>().Rewind();
 			GetComponent<Animation>().Stop();
-			GetComponent<Animation>().Play (template.reloadAnimName);
-			GetComponent<Animation>().Stop();
-			GetComponent<Animation>().Rewind();
-			print("Ending sprint animation playback.");
+			GetComponent<Animation>().Play(template.resetAnimName);
+			transform.localPosition = holdPos == HoldPos.hold ? template.holdPos : template.scopePos;
+			//print("Ending sprint animation playback.");
 		}
 	}
 
 	// TODO: Handling lag, i.e, the gun lags behind the player's perspective. Perhaps use a frame-delayed rotation change, or a hinge?
 	// TODO: Make guns finish firing bursts when dropped. :D
 	void Update() {
+		
+		//print (GetComponent<Animation>().isPlaying);
+		
 		if (holder == null) {
 			GetComponent<Collider>().enabled = true;
 			GetComponent<Rigidbody>().WakeUp();
@@ -150,16 +153,7 @@ public class WeaponInstance : MonoBehaviour {
 		GetComponent<Rigidbody>().Sleep();
 		GetComponent<Collider>().enabled = false;
 		
-		float bestWeight = -1.0F;
-		/*string playing = "";
-		foreach (AnimationState s in GetComponent<Animation>()) {
-			if (s.enabled && s.weight > bestWeight) {
-				playing = s.name;
-				bestWeight = s.weight;
-			}
-		}
-		Debug.Log("Playing " + playing);
-		*/
+		// ANIM if (GetComponent<Animation>().IsPlaying(template.resetAnimName)) GetComponent<Animation>().Stop();
 
 		if (state == WeaponState.Arming && lastStateChange + template.rearmTime < Time.time) setState(WeaponState.None);
 
@@ -182,10 +176,11 @@ public class WeaponInstance : MonoBehaviour {
 
 		XRecoilRot += XRecoilVel * Time.deltaTime;
 
-		transform.localEulerAngles = new Vector3(0, XRecoilRot, 0);
-		transform.localPosition = Vector3.Lerp (lastHoldPos, holdPos == HoldPos.scope ? template.scopePos : template.holdPos, (Time.time - holdChangeTime)/template.scopeTime);
-		transform.Translate (0,0,-Mathf.Abs(XRecoilRot)/100,Space.Self);
-
+		//transform.localEulerAngles = new Vector3(0, 0, 0);
+		if (!GetComponent<Animation>().isPlaying) transform.localEulerAngles = new Vector3(0, XRecoilRot, 0);
+		/*if (!GetComponent<Animation>().isPlaying)*/ transform.localPosition = Vector3.Lerp (lastHoldPos, holdPos == HoldPos.scope ? template.scopePos : template.holdPos, (Time.time - holdChangeTime)/template.scopeTime);
+		//transform.Translate (0,0,-Mathf.Abs(XRecoilRot)/100,Space.Self);
+		
 	}
 	
 	// Whether the gun CAN shoot, not whether it will.
@@ -209,7 +204,7 @@ public class WeaponInstance : MonoBehaviour {
 	public int reload() {
 		//animation
 		if (magazine < template.magSize && ammoReserve > 0) {
-			// ANIM GetComponent<Animation>().Play(template.reloadAnimName);
+			GetComponent<Animation>().Play(template.reloadAnimName);
 			GetComponent<Animation>().Play();
 			state = WeaponState.Reloading;
 			holdPos = HoldPos.hold;

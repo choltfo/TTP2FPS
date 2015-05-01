@@ -15,6 +15,7 @@ public class WeaponTemplate : ScriptableObject {
 	
 	public string reloadAnimName = "CHANGE THIS";
 	public string sprintAnimName = "CHANGE THIS";
+	public string resetAnimName  = "CHANGE THIS";
 	
 	public float YRecoil; // Recoil coeffecient for recoil() on CombatatEntity.
 
