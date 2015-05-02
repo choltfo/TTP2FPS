@@ -10,6 +10,8 @@ public class Player : CombatantEntity {
 	public GameObject head;
 
 	public float speed = 6.0F;
+	public float crouchedSpeed = 3.0F;
+	public float proneSpeed = 1.0F;
 	public float sprintSpeed = 10.0F;
 	public float jumpSpeed = 8.0F;
 	public float gravity = 20.0F;
@@ -26,6 +28,7 @@ public class Player : CombatantEntity {
 
 	public bool invertVertical = false;
 	
+	public PlayerStance stance = PlayerStance.standing;
 	public bool sprinting = false;
 	
 	private Vector3 moveDirection = Vector3.zero;
@@ -60,6 +63,27 @@ public class Player : CombatantEntity {
 		
 		transform.localEulerAngles = new Vector3 (0,transform.localEulerAngles.y + (inputHorizontal * sensitivtyHorizontal) % 360,0);
 	}
+	
+	public void setStance(PlayerStance st) {
+		stance = st;
+		if (st == PlayerStance.standing) {
+			c.radius = 0.25f;
+			c.height = 1.75f;
+			c.center = Vector3.zero;
+		}
+		if (st == PlayerStance.crouching) {
+			c.radius = 0.25f;
+			c.height = 1f;
+			c.center = Vector3.zero;
+			setSprinting(false);
+		}
+		if (st == PlayerStance.prone) {
+			c.radius = 0.25f;
+			c.height = 0.5f;
+			c.center = Vector3.zero;
+			setSprinting(false);
+		}
+	}
 
 	public override void childUpdate () {
 		handleLook ();
@@ -89,13 +113,34 @@ public class Player : CombatantEntity {
 		if (recoilVel > 0) {
 			recoilVel -= recoilAbsorption * Time.deltaTime;
 			rotationVert -= recoilVel;
-		} else
-			recoilVel = 0;
+		} else recoilVel = 0;
 
 		if (Input.GetKeyDown (KeyCode.X)) {
-			weapons[currentWeapon].incrementFireSelect();
+			if (weapons[currentWeapon] != null) weapons[currentWeapon].incrementFireSelect();
 		}
 		
+		/*if (Input.GetKeyDown (KeyCode.C)) {
+			if (stance != PlayerStance.crouching) {
+				setStance(PlayerStance.crouching);
+			} else setStance(PlayerStance.standing);
+		}
+		
+		if (Input.GetKeyDown (KeyCode.LeftControl)) {
+			if (stance != PlayerStance.prone) {
+				setStance(PlayerStance.prone);
+			} else setStance(PlayerStance.standing);
+		}*/
+		
+		if (Input.GetKey (KeyCode.C) != (stance == PlayerStance.crouching)) {
+			if (stance == PlayerStance.crouching) {
+				setStance(PlayerStance.standing);
+			} else setStance(PlayerStance.crouching);
+		}
+		if (Input.GetKey (KeyCode.LeftControl) != (stance == PlayerStance.prone)) {
+			if (stance == PlayerStance.prone) {
+				setStance(PlayerStance.standing);
+			} else setStance(PlayerStance.prone);
+		}
 		
 		pickup = null;
 		Collider[] hits = Physics.OverlapSphere (transform.position, 10);
@@ -225,10 +270,10 @@ public class Player : CombatantEntity {
 
 	public override void Move () {
 		if (c.isGrounded) {
-			setSprinting(Input.GetKey(KeyCode.LeftShift));
+			setSprinting(Input.GetKey(KeyCode.LeftShift) && stance == PlayerStance.standing);
 			moveDirection = new Vector3(Input.GetAxis("Horizontal"+playerNumber), 0, Input.GetAxis("Vertical"+playerNumber));
 			moveDirection = transform.TransformDirection(moveDirection);
-			moveDirection *= sprinting ? sprintSpeed : speed;
+			moveDirection *= sprinting ? sprintSpeed : (stance == PlayerStance.standing ? speed : (stance == PlayerStance.crouching ? crouchedSpeed : proneSpeed));
 			if (Input.GetButton("Jump"+playerNumber))
 				moveDirection.y = jumpSpeed;
 		} else setSprinting(false);

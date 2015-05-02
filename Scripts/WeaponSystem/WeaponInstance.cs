@@ -126,6 +126,7 @@ public class WeaponInstance : MonoBehaviour {
 	public void setSprinting(bool sprinting) {
 		if (sprinting) {
 			holdPos = HoldPos.hold;
+			transform.localPosition = template.holdPos;
 			GetComponent<Animation>().Stop();
 			GetComponent<Animation>().Play(template.sprintAnimName);
 			
@@ -160,6 +161,8 @@ public class WeaponInstance : MonoBehaviour {
 		if (state == WeaponState.None && canFire () && remainingBurst > 0) {
 			fire ();
 		}
+		
+		if (template.canAim && GetComponent<Animation>().IsPlaying(template.reloadAnimName)) holdPos = HoldPos.hold; 
 
 		if (state == WeaponState.Reloading && !GetComponent<Animation>().isPlaying) {
 			
@@ -176,11 +179,11 @@ public class WeaponInstance : MonoBehaviour {
 
 		XRecoilRot += XRecoilVel * Time.deltaTime;
 
-		//transform.localEulerAngles = new Vector3(0, 0, 0);
-		if (!GetComponent<Animation>().isPlaying) transform.localEulerAngles = new Vector3(0, XRecoilRot, 0);
-		/*if (!GetComponent<Animation>().isPlaying)*/ transform.localPosition = Vector3.Lerp (lastHoldPos, holdPos == HoldPos.scope ? template.scopePos : template.holdPos, (Time.time - holdChangeTime)/template.scopeTime);
-		//transform.Translate (0,0,-Mathf.Abs(XRecoilRot)/100,Space.Self);
-		
+		transform.localPosition = Vector3.Lerp (lastHoldPos, holdPos == HoldPos.scope ? template.scopePos : template.holdPos, (Time.time - holdChangeTime)/template.scopeTime);
+		if (!GetComponent<Animation>().IsPlaying(template.sprintAnimName)) {
+			transform.localEulerAngles = new Vector3(0, XRecoilRot, 0);
+			transform.Translate (0,0,-Mathf.Abs(XRecoilRot)/100,Space.Self);
+		}
 	}
 	
 	// Whether the gun CAN shoot, not whether it will.
@@ -229,13 +232,25 @@ public class WeaponInstance : MonoBehaviour {
 		RaycastHit hit = new RaycastHit();
 
 		//animCont.SetInteger ("State",1);
+		
+		Vector3 Innacc = Vector3.zero;
 
 		GameObject audio = (GameObject)Instantiate (template.soundSource, transform.TransformPoint(template.soundSourcePos), new Quaternion());
 		audio.GetComponent<GunshotAudio> ().soundClip = template.soundFire;
-
+		
+		if (template.tracers) {
+			GameObject tracer = new GameObject();
+			tracer.transform.position = transform.TransformPoint (template.bulletSource);
+			LineRenderer trace = tracer.AddComponent<LineRenderer>();
+			trace.SetPosition(0,tracer.transform.position);
+			trace.SetPosition(1,tracer.transform.position + (transform.forward + Innacc) * template.range);
+			trace.SetColors(Color.yellow, Color.red);
+			trace.material = template.tracerMat;
+			trace.SetWidth(0.01f,0.01f);
+			tracer.AddComponent<Tracer>();
+		}
+		
 		// TODO: Charles: Add inaccuracy.
-
-		Vector3 Innacc = Vector3.zero;
 		
 		if (Physics.Raycast (transform.TransformPoint (template.bulletSource), transform.forward + Innacc, out hit)) {
 			BulletData b = new BulletData(holder, template.damage);

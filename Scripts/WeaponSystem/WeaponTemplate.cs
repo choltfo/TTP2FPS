@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEditor;
 
 public class WeaponTemplate : ScriptableObject {
 	public string Name;
@@ -34,6 +33,9 @@ public class WeaponTemplate : ScriptableObject {
 	public float scopeTime = 0.25f;
 
 	public bool canAim = true;
+	
+	public bool tracers = true;
+	public Material tracerMat;
 	
 	// Sear type.
 	// 0 = Infinite shots per trigger pull.
