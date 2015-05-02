@@ -119,7 +119,7 @@ public class Player : CombatantEntity {
 			if (weapons[currentWeapon] != null) weapons[currentWeapon].incrementFireSelect();
 		}
 		
-		/*if (Input.GetKeyDown (KeyCode.C)) {
+		if (Input.GetKeyDown (KeyCode.C)) {
 			if (stance != PlayerStance.crouching) {
 				setStance(PlayerStance.crouching);
 			} else setStance(PlayerStance.standing);
@@ -129,9 +129,9 @@ public class Player : CombatantEntity {
 			if (stance != PlayerStance.prone) {
 				setStance(PlayerStance.prone);
 			} else setStance(PlayerStance.standing);
-		}*/
+		}
 		
-		if (Input.GetKey (KeyCode.C) != (stance == PlayerStance.crouching)) {
+		/*if (Input.GetKey (KeyCode.C) != (stance == PlayerStance.crouching)) {
 			if (stance == PlayerStance.crouching) {
 				setStance(PlayerStance.standing);
 			} else setStance(PlayerStance.crouching);
@@ -140,7 +140,7 @@ public class Player : CombatantEntity {
 			if (stance == PlayerStance.prone) {
 				setStance(PlayerStance.standing);
 			} else setStance(PlayerStance.prone);
-		}
+		}*/
 		
 		pickup = null;
 		Collider[] hits = Physics.OverlapSphere (transform.position, 10);
