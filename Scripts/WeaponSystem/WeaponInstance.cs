@@ -246,7 +246,7 @@ public class WeaponInstance : MonoBehaviour {
 			trace.SetPosition(1,tracer.transform.position + (transform.forward + Innacc) * template.range);
 			trace.SetColors(Color.yellow, Color.red);
 			trace.material = template.tracerMat;
-			trace.SetWidth(0.01f,0.01f);
+			trace.SetWidth(0.05f,0.05f);
 			tracer.AddComponent<Tracer>();
 		}
 		
