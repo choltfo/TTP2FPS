@@ -15,7 +15,11 @@ public class Player : CombatantEntity {
 	public float sprintSpeed = 10.0F;
 	public float jumpSpeed = 8.0F;
 	public float gravity = 20.0F;
-
+	
+	public float lookSensitivityX = 3f;
+	public float lookSensitivityY = 3f;
+	public float scopeSensitivity = 0.5f;
+	
 	public float sensitivtyVertical = 1;
 	public float maxVert = 60;
 	public float minVert = -60;
@@ -42,6 +46,8 @@ public class Player : CombatantEntity {
 	public RawImage reticleImage;
 	
 	Color reticleColor = Color.clear;
+	bool wasHoldingFireSwitch = false;
+	bool wasHoldingWeaponSwitch = false;
 	
 
 	public override void childStart() {
@@ -53,8 +59,10 @@ public class Player : CombatantEntity {
 	}
 
 	void handleLook() {
-		float inputHorizontal = Input.GetAxis ("Mouse X");
-		float inputVertical = Input.GetAxis ("Mouse Y");
+		float inputHorizontal = Input.GetAxis ("P"+playerNumber+"LookX")*lookSensitivityX*
+			(weapons[currentWeapon] != null ? (weapons[currentWeapon].holdPos == HoldPos.scope ? scopeSensitivity : 1) : 1);;
+		float inputVertical = Input.GetAxis ("P"+playerNumber+"LookY")*lookSensitivityY*
+				(weapons[currentWeapon] != null ? (weapons[currentWeapon].holdPos == HoldPos.scope ? scopeSensitivity : 1) : 1);
 		
 		rotationVert += (inputVertical * (invertVertical ? sensitivtyVertical : -sensitivtyVertical));
 		rotationVert = Mathf.Clamp(rotationVert, -Mathf.Abs(maxVert), Mathf.Abs(minVert));
@@ -90,15 +98,15 @@ public class Player : CombatantEntity {
 		if (weapons.Length != 0 && weapons[currentWeapon]) {
 			int[] fm = weapons [currentWeapon].template.fireModes;
 			if (fm[weapons [currentWeapon].fireSelect] == 0) {
-				if (Input.GetMouseButton (0)) {				// Automatic, fireMode is 0.
+				if (Input.GetButton("P"+playerNumber+"Shoot")) {				// Automatic, fireMode is 0.
 					weapons [currentWeapon].trigger (this);
 				}
 			} else {
-				if (Input.GetMouseButtonDown (0)) {			// Burst or semi otherwise.
+				if (Input.GetButtonDown ("P"+playerNumber+"Shoot")) {			// Burst or semi otherwise.
 					weapons [currentWeapon].trigger (this);
 				}
 			}
-			if (Input.GetKeyDown (KeyCode.R)) {
+			if (Input.GetButtonDown ("P"+playerNumber+"Reload")) {
 				weapons[currentWeapon].reload();
 			}
 			
@@ -106,7 +114,10 @@ public class Player : CombatantEntity {
 				//if (Input.GetMouseButtonDown (1)) {
 				//	if (!sprinting) weapons[currentWeapon].setHoldPos(weapons[currentWeapon].holdPos == HoldPos.scope ? HoldPos.hold : HoldPos.scope);
 				//}
-				if (Input.GetMouseButton (1) == (weapons[currentWeapon].holdPos == HoldPos.hold) || sprinting) weapons[currentWeapon].setHoldPos((Input.GetMouseButton (1) && !sprinting) ? HoldPos.scope : HoldPos.hold);
+				//print(Input.GetButton("P"+playerNumber+"Aim"));
+				if (Input.GetButton("P"+playerNumber+"Aim") == (weapons[currentWeapon].holdPos == HoldPos.hold) || sprinting)
+						weapons[currentWeapon].setHoldPos((Input.GetButton("P"+playerNumber+"Aim") && !sprinting) ? HoldPos.scope : HoldPos.hold);
+				//if (Input.GetMouseButton(1) == (weapons[currentWeapon].holdPos == HoldPos.hold) || sprinting) weapons[currentWeapon].setHoldPos((Input.GetMouseButton (1) && !sprinting) ? HoldPos.scope : HoldPos.hold);
 			} 
 		}
 
@@ -115,9 +126,10 @@ public class Player : CombatantEntity {
 			rotationVert -= recoilVel;
 		} else recoilVel = 0;
 
-		if (Input.GetKeyDown (KeyCode.X)) {
+		if (Input.GetAxis ("P"+playerNumber+"FireMode") > 0 && wasHoldingFireSwitch == false) {
 			if (weapons[currentWeapon] != null) weapons[currentWeapon].incrementFireSelect();
 		}
+		wasHoldingFireSwitch = Input.GetAxis ("P"+playerNumber+"FireMode") > 0;
 		
 		if (Input.GetKeyDown (KeyCode.C)) {
 			if (stance != PlayerStance.crouching) {
@@ -162,7 +174,7 @@ public class Player : CombatantEntity {
 		}
 		
 		if (pickup != null) {
-			if (Input.GetKeyDown(KeyCode.E)) {
+			if (Input.GetButtonDown("P"+playerNumber+"Interact")) {
 				int slot = chooseSlot();
 				
 				print ("Attempting pickup of " + pickup.template.Name);
@@ -180,10 +192,11 @@ public class Player : CombatantEntity {
 			}
 		}
 		
-		if (Input.GetAxis("Mouse ScrollWheel") > 0) {
+		// TODO: Fix input of ambiguous type. Shit!
+		if (Input.GetButton("P"+playerNumber+"Switch") && !wasHoldingWeaponSwitch) {
 			switchWeapons((currentWeapon+1) % weapons.Length);
 		}
-		
+		wasHoldingWeaponSwitch = Input.GetButton("P"+playerNumber+"Switch");
 	}
 	
 	public void switchWeapons(int newWeap) {
@@ -270,11 +283,11 @@ public class Player : CombatantEntity {
 
 	public override void Move () {
 		if (c.isGrounded) {
-			setSprinting(Input.GetKey(KeyCode.LeftShift) && stance == PlayerStance.standing);
-			moveDirection = new Vector3(Input.GetAxis("Horizontal"+playerNumber), 0, Input.GetAxis("Vertical"+playerNumber));
+			setSprinting(Input.GetButton("P"+playerNumber+"Sprint") && stance == PlayerStance.standing);
+			moveDirection = new Vector3(Input.GetAxis("P"+playerNumber+"MoveX"), 0, Input.GetAxis("P"+playerNumber+"MoveY"));
 			moveDirection = transform.TransformDirection(moveDirection);
 			moveDirection *= sprinting ? sprintSpeed : (stance == PlayerStance.standing ? speed : (stance == PlayerStance.crouching ? crouchedSpeed : proneSpeed));
-			if (Input.GetButton("Jump"+playerNumber))
+			if (Input.GetButton("P"+playerNumber+"Jump"))
 				moveDirection.y = jumpSpeed;
 		} else setSprinting(false);
 		
