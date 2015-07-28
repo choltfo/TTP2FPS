@@ -111,8 +111,9 @@ public class WeaponInstance : MonoBehaviour {
 		holdPos = HoldPos.hold;
 	}
 	
-	public void enableWeapon() {
+	public void enableWeapon (CombatantEntity triggerer) {
 		if (state == WeaponState.Reloading) GetComponent<Animation>().Play(template.reloadAnimName);
+		holder = triggerer;
 		holdPos = HoldPos.hold;
 		gameObject.SetActive(true);
 	}
@@ -178,8 +179,9 @@ public class WeaponInstance : MonoBehaviour {
 		XRecoilVel = -XRecoilRot*10;
 
 		XRecoilRot += XRecoilVel * Time.deltaTime;
-
-		transform.localPosition = Vector3.Lerp (lastHoldPos, holdPos == HoldPos.scope ? template.scopePos : template.holdPos, (Time.time - holdChangeTime)/template.scopeTime);
+		
+		if (holder is Player) transform.localPosition = Vector3.Lerp (lastHoldPos, holdPos == HoldPos.scope ? template.scopePos : template.holdPos, (Time.time - holdChangeTime)/template.scopeTime);
+		
 		if (!GetComponent<Animation>().IsPlaying(template.sprintAnimName)) {
 			transform.localEulerAngles = new Vector3(0, XRecoilRot, 0);
 			transform.Translate (0,0,-Mathf.Abs(XRecoilRot)/100,Space.Self);
