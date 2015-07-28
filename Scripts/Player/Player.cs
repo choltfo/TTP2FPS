@@ -49,6 +49,10 @@ public class Player : CombatantEntity {
 	bool wasHoldingFireSwitch = false;
 	bool wasHoldingWeaponSwitch = false;
 	
+	public RectTransform WeaponUI;
+	public RectTransform PickupUI;
+	public RectTransform CurrentUI;
+	
 
 	public override void childStart() {
 		if (starter) weapons [0] = starter.create (head, 2, HoldPos.hold, this);
@@ -155,7 +159,7 @@ public class Player : CombatantEntity {
 		}*/
 		
 		pickup = null;
-		Collider[] hits = Physics.OverlapSphere (transform.position, 10);
+		Collider[] hits = Physics.OverlapSphere (transform.position, 5);
 		
 		float prox = float.MaxValue;
 		
@@ -206,7 +210,7 @@ public class Player : CombatantEntity {
 			}
 			currentWeapon = newWeap;
 			if (weapons[currentWeapon] != null) {
-				weapons[currentWeapon].enableWeapon();
+				weapons[currentWeapon].enableWeapon(this);
 			}
 		}
 	}
@@ -237,7 +241,7 @@ public class Player : CombatantEntity {
 			//pickup.template.fireModes[i]
 			y = layoutLabel("    "+(weap.template.fireModes[i] == 0 ? "Auto" : (weap.template.fireModes[i] == 1 ? "Semi-auto" : weap.template.fireModes[i]+"-round burst")), y);
 		}
-		y = layoutLabel("Fire rate:\t"+(1/weap.template.rearmTime)*60 + " rpm", y);
+		y = layoutLabel("Fire rate:\t"+(1/weap.template.rearmTime) + " RPS", y);
 		
 		return y + 5;
 	}
@@ -246,6 +250,7 @@ public class Player : CombatantEntity {
 		pickupWindowHeight = weaponDescriptionWindow(pickup, pickupWindowHeight);
 	}
 	
+	// Current weapon only.
 	void comparisonWindow (int id) {
 		comparisonWindowHeight = weaponDescriptionWindow(weapons[currentWeapon], comparisonWindowHeight);
 	}
@@ -256,16 +261,34 @@ public class Player : CombatantEntity {
 			Vector3 sPos = head.GetComponent<Camera>().WorldToScreenPoint(pickup.transform.position);
 			sPos.x = Mathf.Clamp(sPos.x, 0, Screen.width-pickupWindowWidth);
 			sPos.y = Screen.height - Mathf.Clamp(sPos.y, pickupWindowHeight, Screen.height);
-			//GUI.Box(, pickup.template.Name);
+			
+			// Contemplated weapon only.
 			GUI.Window(0, new Rect(sPos.x, sPos.y, pickupWindowWidth,pickupWindowHeight), pickupWindow, "");
+			
+			// Current weapon only.
 			if (weapons[currentWeapon]) {
 				GUI.Window(1, new Rect(Screen.width-pickupWindowWidth, Screen.height-comparisonWindowHeight,
-					pickupWindowWidth,pickupWindowHeight), comparisonWindow, "");
+					pickupWindowWidth,comparisonWindowHeight), comparisonWindow, "");
 			}
 		}
 		
 		reticleImage.color = reticleColor;
 		reticleColor = Color.Lerp(reticleColor, new Color(255,0,0,0), Time.deltaTime);
+		
+		
+		// Show weapon info (name, mag, fire mode, reserve.
+		// Needs to be linked to hand-built GUI.
+		// 
+		if (weapons[currentWeapon] != null) {
+			WeaponUI.FindChild("ShortName").GetComponent<Text>().text = weapons[currentWeapon].name;
+			WeaponUI.FindChild("LongName").GetComponent<Text>().text = weapons[currentWeapon].name;
+			WeaponUI.FindChild("Ammo").GetComponent<Text>().text = "" + weapons[currentWeapon].magazine + '/' +
+					weapons[currentWeapon].template.magSize + " (" + weapons[currentWeapon].ammoReserve + ')';
+			
+			int n = weapons[currentWeapon].template.fireModes[weapons[currentWeapon].fireSelect];
+			WeaponUI.FindChild("FireMode").GetComponent<Text>().text = n == 0 ? "...|||" : new string('|',n);
+		} 
+		
 		
 	}
 
