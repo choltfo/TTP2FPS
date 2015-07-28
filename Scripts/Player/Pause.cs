@@ -9,6 +9,8 @@ public class Pause : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-		Screen.lockCursor = !paused;
+		//Screen.lockCursor = !paused;
+		Cursor.lockState = CursorLockMode.Locked;
+		Cursor.visible = paused;
 	}
 }
