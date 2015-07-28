@@ -116,6 +116,7 @@ public class WeaponInstance : MonoBehaviour {
 		holder = triggerer;
 		holdPos = HoldPos.hold;
 		gameObject.SetActive(true);
+		if (! triggerer is Player) lastHoldPos = transform.localPosition;
 	}
 	
 	public void disableWeapon() {
@@ -181,6 +182,7 @@ public class WeaponInstance : MonoBehaviour {
 		XRecoilRot += XRecoilVel * Time.deltaTime;
 		
 		if (holder is Player) transform.localPosition = Vector3.Lerp (lastHoldPos, holdPos == HoldPos.scope ? template.scopePos : template.holdPos, (Time.time - holdChangeTime)/template.scopeTime);
+		else transform.localPosition = Vector3.Lerp (lastHoldPos, Vector3.zero, (Time.time - holdChangeTime)/template.scopeTime);
 		
 		if (!GetComponent<Animation>().IsPlaying(template.sprintAnimName)) {
 			transform.localEulerAngles = new Vector3(0, XRecoilRot, 0);

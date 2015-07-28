@@ -30,6 +30,8 @@ public class TestEnemy : CombatantEntity {
 	public Vector3 currentTarget;
 	Vector3 lastNMDirection;
 	
+	bool isIdle;
+	
 	
 	// Use this for initialization
 	void Start () {
@@ -44,7 +46,7 @@ public class TestEnemy : CombatantEntity {
 		
 		Vector3 localNMDirection = transform.InverseTransformDirection(navMeshAgent.desiredVelocity);
 		
-		//print (localNMDirection);
+		print (localNMDirection);
 		
 		if ((localNMDirection - lastNMDirection).sqrMagnitude > 0.2) { 
 			if (localNMDirection.x > 0) {
@@ -61,10 +63,14 @@ public class TestEnemy : CombatantEntity {
 				GetComponent<Animator>().SetTrigger("MOVE_BACKWARD");
 				print ("Moving Backward");
 			}
+			isIdle = false;
 		}
-		
-		if (localNMDirection.sqrMagnitude < 0.1) GetComponent<Animator>().SetTrigger("IDLE_AIMING"); 
-		
+		if (localNMDirection.sqrMagnitude < 0.1) {
+			if (!isIdle) GetComponent<Animator>().SetTrigger("IDLE_AIMING");
+			weapons[currentWeapon].trigger(this);
+			isIdle = true;
+			print ("Idling");
+		}
 		lastNMDirection = localNMDirection;
 		
 		
