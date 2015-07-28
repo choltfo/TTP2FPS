@@ -28,8 +28,6 @@ public class CombatantEntity : MobileEntity {
 	
 	// Called when a BulletReceiver is shot by this entity.
 	// Mostly for flashing UI, but could have some other use, such as taunts.
-	public virtual void shotNotify (BulletReceiver BR) {
-		
-	}
+	public virtual void shotNotify (BulletReceiver BR) {}
 }
 
