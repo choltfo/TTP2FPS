@@ -26,7 +26,10 @@ public class TestEnemy : CombatantEntity {
 	public float moveSpeedBck;
 	public float moveSpeedStf;
 	
-	bool triggered = false;
+	public NavMeshAgent navMeshAgent;
+	public Vector3 currentTarget;
+	Vector3 lastNMDirection;
+	
 	
 	// Use this for initialization
 	void Start () {
@@ -37,11 +40,39 @@ public class TestEnemy : CombatantEntity {
 	
 	// Update is called once per frame
 	void Update () {
+		navMeshAgent.SetDestination(currentTarget);
+		
+		Vector3 localNMDirection = transform.InverseTransformDirection(navMeshAgent.desiredVelocity);
+		
+		//print (localNMDirection);
+		
+		if ((localNMDirection - lastNMDirection).sqrMagnitude > 0.2) { 
+			if (localNMDirection.x > 0) {
+				GetComponent<Animator>().SetTrigger("MOVE_FORWARD_RIGHT");
+				print ("Turning Right");
+			} else if (localNMDirection.x < 0) {
+				GetComponent<Animator>().SetTrigger("MOVE_FORWARD_LEFT");
+				print ("Turning Left");
+			}
+			if (localNMDirection.z > 0) {
+				GetComponent<Animator>().SetTrigger("MOVE_FORWARD");
+				print ("Moving Forward");
+			} else if (localNMDirection.z < 0) {
+				GetComponent<Animator>().SetTrigger("MOVE_BACKWARD");
+				print ("Moving Backward");
+			}
+		}
+		
+		if (localNMDirection.sqrMagnitude < 0.1) GetComponent<Animator>().SetTrigger("IDLE_AIMING"); 
+		
+		lastNMDirection = localNMDirection;
+		
+		
 		//if (Time.time > 5) GetComponent<Animator>().Play (animNames[(int)Anims.idleAiming]);
-		if (Time.time > 5 && !triggered) {
+		/*if (Time.time > 5 && !triggered) {
 			GetComponent<Animator>().SetTrigger("IDLE_AIMING");
 			triggered = true;
 			print ("Triggering IDLE_AIMING");
-		}
+		}*/
 	}
 }
