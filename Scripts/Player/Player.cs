@@ -280,7 +280,7 @@ public class Player : CombatantEntity {
 		// Needs to be linked to hand-built GUI.
 		// 
 		if (weapons[currentWeapon] != null) {
-			WeaponUI.FindChild("ShortName").GetComponent<Text>().text = weapons[currentWeapon].name;
+			WeaponUI.FindChild("ShortName").GetComponent<Text>().text = weapons[currentWeapon].template.Name;
 			WeaponUI.FindChild("LongName").GetComponent<Text>().text = weapons[currentWeapon].name;
 			WeaponUI.FindChild("Ammo").GetComponent<Text>().text = "" + weapons[currentWeapon].magazine + '/' +
 					weapons[currentWeapon].template.magSize + " (" + weapons[currentWeapon].ammoReserve + ')';
