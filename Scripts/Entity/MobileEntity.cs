@@ -23,9 +23,23 @@ public class MobileEntity : MonoBehaviour {
 	}
 
 	void Update () {
-		Move ();
-		childUpdate ();
+		//if (health <= 0) Die ();
+		if (alive) {
+			Move ();
+			childUpdate ();
+		}
 	}
+	
+	public void takeDamage(float dmg) {
+		health -= dmg;
+		if (health <= 0) {
+			Die ();
+			alive = false;
+		}
+		print ("Took "+ dmg + " hp of damage.");
+	}
+	
+	public virtual void Die() {}
 
 	public virtual void childStart() {}
 
