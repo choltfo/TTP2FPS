@@ -196,7 +196,7 @@ public class Player : CombatantEntity {
 			}
 		}
 		
-		// TODO: Fix input of ambiguous type. Shit!
+		// TODO: Fix input of ambiguous type. Also todo, figure out what this means....
 		if (Input.GetButton("P"+playerNumber+"Switch") && !wasHoldingWeaponSwitch) {
 			switchWeapons((currentWeapon+1) % weapons.Length);
 		}

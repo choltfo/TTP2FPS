@@ -72,7 +72,7 @@ public class WeaponInstance : MonoBehaviour {
 	}
 
 	// TODO: Add multiple segments of animations, i.e, remove mag, insert mag, bolt catch, charge, etc.
-	// TODO: Add a function that allows for LERPing between the positions ONLY WHEN NECESSARY.
+	// TODO: Redo weapon animations entirely using actual animators and triggers.
 	public AnimState animState = new AnimState();
 	
 	// To be called continually for automatic, or intermittently for a semi or burst weapon.
@@ -143,7 +143,6 @@ public class WeaponInstance : MonoBehaviour {
 	}
 
 	// TODO: Handling lag, i.e, the gun lags behind the player's perspective. Perhaps use a frame-delayed rotation change, or a hinge?
-	// TODO: Make guns finish firing bursts when dropped. :D
 	void Update() {
 		
 		//print (GetComponent<Animation>().isPlaying);
@@ -254,7 +253,7 @@ public class WeaponInstance : MonoBehaviour {
 			tracer.AddComponent<Tracer>();
 		}
 		
-		// TODO: Charles: Add inaccuracy.
+		// TODO: Add inaccuracy.
 		
 		if (Physics.Raycast (transform.TransformPoint (template.bulletSource), transform.forward + Innacc, out hit)) {
 			BulletData b = new BulletData(holder, template.damage);

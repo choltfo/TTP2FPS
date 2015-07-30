@@ -1,11 +1,17 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
+
 
 [ExecuteInEditMode]
 public class CoverNode : MonoBehaviour {
-	void Update () {
-		
+
+	// Register node for quick finding in the future.
+	void Start () {
+		if (CoverList.allNodes == null) CoverList.allNodes = new List<CoverNode>();
+		CoverList.allNodes.Add(this);
 	}
+	
+	// For editor. And also debug.
 	void OnDrawGizmos() {
 		if (!Application.isPlaying) {
 			Gizmos.color = Color.red;
@@ -14,4 +20,6 @@ public class CoverNode : MonoBehaviour {
 	}
 }
 
-
+public static class CoverList {
+	public static List<CoverNode> allNodes;
+}

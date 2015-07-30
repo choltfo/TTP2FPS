@@ -86,6 +86,9 @@ public class TestEnemy : CombatantEntity {
 			anim.transform.forward = transform.forward;
 			
 		} else {
+			
+			// TODO: Needs changing for covering and advanced PF.
+			
 			navMeshAgent.Stop();
 			anim.transform.forward = (navMeshAgent.destination - transform.position).normalized;
 		}
@@ -98,4 +101,23 @@ public class TestEnemy : CombatantEntity {
 		}
 		lastNMDirection = animLocalDirection;
 	}
+	
+	CoverNode getNearestCover() {
+		float prox = float.MaxValue;
+		int nearest = 0;
+		
+		for (int i = 0; i < CoverList.allNodes.Count; i++) {
+			float dist = (CoverList.allNodes[i].transform.position-transform.position).sqrMagnitude;
+			if (dist < prox) {
+				nearest = i;
+				prox = dist;
+			}
+		}
+		
+		return CoverList.allNodes[nearest];
+	}
+	
 }
+
+
+
