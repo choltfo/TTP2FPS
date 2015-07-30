@@ -116,7 +116,7 @@ public class WeaponInstance : MonoBehaviour {
 		holder = triggerer;
 		holdPos = HoldPos.hold;
 		gameObject.SetActive(true);
-		if (! triggerer is Player) lastHoldPos = transform.localPosition;
+		//if (! triggerer is Player) lastHoldPos = transform.localPosition;		// Supposedly unreachable....
 	}
 	
 	public void disableWeapon() {

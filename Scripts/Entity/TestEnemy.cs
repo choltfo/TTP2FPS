@@ -19,7 +19,7 @@ public class TestEnemy : CombatantEntity {
 	bool tracking = false;
 	MovementStates state = MovementStates.MovingToTarget;
 	
-	const float sin22p5 = 0.382683f;
+	const float sin22p5 = 0.382683f;	// Used for animation triggering.
 	
 	// Use this for initialization
 	void Start () {
