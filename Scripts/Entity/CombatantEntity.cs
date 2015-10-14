@@ -5,7 +5,7 @@ using System.Collections;
 public class CombatantEntity : MobileEntity {
 	
 	// Vars needed:
-	
+	public Animator anim;
 	public WeaponInstance[] weapons;
 	public int currentWeapon = 0;
 	

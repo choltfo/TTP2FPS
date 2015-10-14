@@ -180,10 +180,13 @@ public class WeaponInstance : MonoBehaviour {
 
 		XRecoilRot += XRecoilVel * Time.deltaTime;
 		
-		if (holder is Player) transform.localPosition = Vector3.Lerp (lastHoldPos, holdPos == HoldPos.scope ? template.scopePos : template.holdPos, (Time.time - holdChangeTime)/template.scopeTime);
-		else transform.localPosition = Vector3.Lerp (lastHoldPos, Vector3.zero, (Time.time - holdChangeTime)/template.scopeTime);
+		if (holder is Player) {
+			transform.localPosition = Vector3.Lerp (lastHoldPos, holdPos == HoldPos.scope ? template.scopePos : template.holdPos, (Time.time - holdChangeTime)/template.scopeTime);
+		} else {
+			transform.localPosition = Vector3.Lerp (lastHoldPos, Vector3.zero, (Time.time - holdChangeTime)/template.scopeTime);
+		}
 		
-		if (!GetComponent<Animation>().IsPlaying(template.sprintAnimName)) {
+		if (!GetComponent<Animation>().IsPlaying(template.sprintAnimName) && holder is Player) {
 			transform.localEulerAngles = new Vector3(0, XRecoilRot, 0);
 			transform.Translate (0,0,-Mathf.Abs(XRecoilRot)/100,Space.Self);
 		}
@@ -259,8 +262,8 @@ public class WeaponInstance : MonoBehaviour {
 			BulletData b = new BulletData(holder, template.damage);
 			//hit.transform.gameObject.SendMessage ("receiveShot",b);  				// Correct but sketchy feeling way of doing it.
 
-			Debug.DrawLine(transform.TransformPoint (template.bulletSource), hit.point, Color.green, 100);
-			Debug.DrawLine(transform.TransformPoint (template.bulletSource), transform.position, Color.red, 100);
+			Debug.DrawLine(transform.TransformPoint (template.bulletSource), hit.point, Color.green, 2);
+			Debug.DrawLine(transform.TransformPoint (template.bulletSource), transform.position, Color.red, 2);
 
 			// Sketchy but correct feeling way of doing it.
 			BulletReceiver h = hit.transform.gameObject.GetComponent<BulletReceiver>();

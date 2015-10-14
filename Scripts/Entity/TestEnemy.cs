@@ -9,8 +9,6 @@ public class TestEnemy : CombatantEntity {
 	
 	public GameObject target;
 	
-	
-	public Animator anim;
 	public NavMeshAgent navMeshAgent;
 	public Vector3 currentTarget;
 	Vector3 lastNMDirection;
@@ -50,6 +48,8 @@ public class TestEnemy : CombatantEntity {
 		if (Input.GetKeyDown(KeyCode.Return)) tracking = true;
 		if (tracking) navMeshAgent.SetDestination(target.transform.position);
 		
+		Debug.DrawRay(transform.position,transform.forward, Color.gray);
+		
 		Vector3 animLocalDirection = anim.transform.InverseTransformDirection(navMeshAgent.desiredVelocity).normalized;
 		
 		//print (animLocalDirection);
@@ -61,6 +61,7 @@ public class TestEnemy : CombatantEntity {
 			Debug.DrawLine(anim.transform.position+new Vector3(0,1.75f)+(anim.transform.forward*1f), target.transform.position+new Vector3(0,0.625f)-(anim.transform.forward*0.5f), Color.blue);
 			if (!Physics.Linecast(anim.transform.position+new Vector3(0,1.75f)+(anim.transform.forward*1f), target.transform.position+new Vector3(0,0.625f)-(anim.transform.forward*0.5f), out testForLOS)) {
 				state = MovementStates.HasLOS;
+				weapons[currentWeapon].transform.eulerAngles.Set(weapons[currentWeapon].transform.eulerAngles.x,transform.forward.y,weapons[currentWeapon].transform.eulerAngles.z);
 			} else {
 				state = MovementStates.MovingToTarget;
 				navMeshAgent.Resume();
@@ -69,6 +70,28 @@ public class TestEnemy : CombatantEntity {
 			state = MovementStates.MovingToTarget;
 			navMeshAgent.Resume();
 		}
+		
+		// Entity has line of sight to target. This does not take into account distance, yet....
+		// It should now start aiming.
+		
+		if (state == MovementStates.HasLOS) {
+			
+			// Point gun to right elevation.
+			
+			float xRot = (Mathf.Atan(
+				(weapons[currentWeapon].transform.position.y - target.transform.position.y)
+				/ Mathf.Sqrt(
+					Mathf.Pow (weapons[currentWeapon].transform.position.x - target.transform.position.x,2)+
+					Mathf.Pow (weapons[currentWeapon].transform.position.z - target.transform.position.z,2)
+				)
+				) / (2*Mathf.PI)) * 360;
+				
+			float yRot = anim.transform.eulerAngles.y;//Mathf.Clamp(xRot,weapons[currentWeapon].transform.eulerAngles.x-(1*Time.deltaTime),weapons[currentWeapon].transform.eulerAngles.x+(1*Time.deltaTime));
+			
+			// anim.transform.eulerAngles.y
+			
+			weapons[currentWeapon].transform.eulerAngles = new Vector3(xRot,yRot,0);
+		} 
 		
 		if (state == MovementStates.MovingToTarget) {
 		
