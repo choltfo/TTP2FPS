@@ -3,6 +3,7 @@ using UnityEditor;
 using System.IO;
 
 public static class ScriptableObjectUtility {
+	
 	/// <summary>
 	//	This makes it easy to create, name and place unique new ScriptableObject asset files.
 	/// </summary>
@@ -31,5 +32,10 @@ public static class ScriptableObjectUtility {
 	[MenuItem("Choltfo/Create/Weapon template")]
 	public static void createWeaponReference() {
 		CreateAsset <WeaponTemplate> ();
+	}
+
+	[MenuItem("Choltfo/Create/Weapon Animation")]
+	public static void createWeaponAnimation() {
+		CreateAsset <WeaponAnimation> ();
 	}
 }

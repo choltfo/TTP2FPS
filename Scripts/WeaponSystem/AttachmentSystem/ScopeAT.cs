@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEditor;
+//using UnityEditor;
 
 public class ScopeAT : AttachmentTemplate {
 	public GameObject mask;

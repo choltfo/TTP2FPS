@@ -1,19 +1,22 @@
 ﻿using UnityEngine;
-using UnityEditor;
 
 public class WeaponTemplate : ScriptableObject {
 	public string Name;
 	public GameObject MainWeapon;	// Prefab reference.
-	public string AS = "Sound";
+	public GameObject soundSource;
+	public Vector3 soundSourcePos;
 
 	public Vector3 bulletSource;
 	public float range;
 
-	/*
-	public float zRecoil;	// Force applied backwards to the shooter.
-	public float xRecoil;	// Maximum sway from a shot. Applied on Y-axis.
-	public float yRecoil;	// Maximum vertical sway. Applied on X-axis.
-	*/
+	public Vector3 scopePos;
+	public Vector3 holdPos;
+	
+	public string reloadAnimName = "CHANGE THIS";
+	public string sprintAnimName = "CHANGE THIS";
+	public string resetAnimName  = "CHANGE THIS";
+	
+	public float YRecoil; // Recoil coeffecient for recoil() on CombatatEntity.
 
 	public int magSize;
 
@@ -26,6 +29,13 @@ public class WeaponTemplate : ScriptableObject {
 	
 	// Time to reload.
 	public float reloadTime = 1f;
+
+	public float scopeTime = 0.25f;
+
+	public bool canAim = true;
+	
+	public bool tracers = true;
+	public Material tracerMat;
 	
 	// Sear type.
 	// 0 = Infinite shots per trigger pull.
@@ -35,16 +45,42 @@ public class WeaponTemplate : ScriptableObject {
 	// 0,1,3 is a standard assault rifle, with auto, semi, and 3-round burst.
 	public int[] fireModes = {0,1,3};
 
-	public WeaponInstance create (GameObject parent, int mags) {
+	// Animations go beneath here.
+
+	public float xRecoil;
+	public float XRecoilAccel;
+
+	public AudioClip soundFire;
+	public AudioClip soundReload;
+	public AudioClip soundFireSelect;
+	public AudioClip soundDryFire;
+
+	public WeaponInstance create (GameObject parent, int mags, HoldPos hp, CombatantEntity owner, Vector3 position = default(Vector3)) {
 		GameObject go = (GameObject)Instantiate (MainWeapon, parent.transform.position, parent.transform.rotation);
 		go.transform.parent = parent.transform;
-		go.transform.localPosition = Vector3.zero;
 		go.transform.localEulerAngles = Vector3.zero;
-		WeaponInstance w = go.AddComponent<WeaponInstance> ();
-		w.AS = go.transform.Find (AS).gameObject.audio;
+
+		WeaponInstance w = go.GetComponent<WeaponInstance> ();
+		if (!w) w = go.AddComponent<WeaponInstance> ();
+
+		//w.AS = go.transform.Find (AS).gameObject.audio;
 		w.template = this;
 		w.magazine = magSize;
-		w.ammoReserve = mags * magSize;
+
+		// TODO: This will be a problem if ever the player receives a gun with no mags....
+		if (w.ammoReserve == 0) w.ammoReserve = mags * magSize;
+		w.holdPos = hp;
+		w.state = WeaponState.None;
+		w.holder = owner;
+
+		if (hp == HoldPos.hold) {
+			go.transform.Translate(holdPos, Space.Self);
+		} else if (hp == HoldPos.scope) {
+			go.transform.Translate(scopePos, Space.Self);
+		} else {
+			go.transform.Translate(position, Space.Self);
+		}
+
 		//MonoBehaviour.print ("Is this even getting called?!");
 		return w;
 	}
