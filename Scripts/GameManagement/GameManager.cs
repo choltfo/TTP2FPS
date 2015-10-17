@@ -8,35 +8,34 @@ using System.Collections;
 // 	Will put one and two on a horizontal (top,bottom) split by default, and then progressively split.
 
 public class GameManager : MonoBehaviour {
-	
-	public static GameManager gameManager;
-	
-	public Game currentGame;
+
+	public WorldSettings world;
 	
 	public Player[] players;
-	public Vector3 spawnPoint;
-	
+
+
+	PlayerManager playerMan;
+
 	// Use this for initialization
 	// Also, this might not be the right way to do this.... Only time will tell!
 	void Start () {
-		if (gameManager != null) Destroy (gameManager);
-		gameManager = this;
+		playerMan = GetComponent<PlayerManager>();
+
+		playerMan.CreatePlayers(2);
+
+		//if (gameManager != null) Destroy (gameManager);
+		//gameManager = this;
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
-		// Debug
+		// Debug! :D
 		if (Input.GetKeyDown(KeyCode.Backspace)) Application.LoadLevel(Application.loadedLevel);
 	}
 	
 	void OnGUI() {
-		
+		return;
 	}
-}
-
-public class Game : ScriptableObject {
-	// All entities in the current game, player included.
-	public CombatantEntity[] entities;
 }
 
 

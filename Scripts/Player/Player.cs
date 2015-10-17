@@ -255,8 +255,10 @@ public class Player : CombatantEntity {
 		comparisonWindowHeight = weaponDescriptionWindow(weapons[currentWeapon], comparisonWindowHeight);
 	}
 	
+	// DEBUG: Uncomment and fix this when player instantiaion works.
+
 	// Draw GUI, enumerate pickup options.
-	void OnGUI () {
+	/*void OnGUI () {
 		if (pickup != null) {
 			Vector3 sPos = head.GetComponent<Camera>().WorldToScreenPoint(pickup.transform.position);
 			sPos.x = Mathf.Clamp(sPos.x, 0, Screen.width-pickupWindowWidth);
@@ -290,7 +292,7 @@ public class Player : CombatantEntity {
 		} 
 		
 		
-	}
+	}*/
 
 	public int chooseSlot() {
 		for (int i = 0; i < weapons.Length; i++) if (!weapons[i]) return i;
