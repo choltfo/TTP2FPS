@@ -60,7 +60,7 @@ public class PlayerManager : MonoBehaviour {
 			players.Add(Instantiate(playerPrefab).GetComponent<Player>());
 
 			players[i].transform.FindChild("Camera").GetComponent<Camera>().rect = viewports[i];
-			players[i].playerNumber = i;
+			players[i].playerNumber = 1;	// Debugging with controller: 1. Real: i
 			players[i].playerName = "Player number " + (i + 1) + "";
 
 			players[i].transform.position = world.spawnLocations[spawnPoint].position;

@@ -21,7 +21,8 @@ public class GameManager : MonoBehaviour {
 	void Start () {
 		playerMan = GetComponent<PlayerManager>();
 
-		playerMan.CreatePlayers(2);
+		// Generate our debug player.
+		playerMan.CreatePlayers(1);
 
 		//if (gameManager != null) Destroy (gameManager);
 		//gameManager = this;

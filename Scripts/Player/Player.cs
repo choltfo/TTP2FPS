@@ -52,11 +52,15 @@ public class Player : CombatantEntity {
 	public RectTransform WeaponUI;
 	public RectTransform PickupUI;
 	public RectTransform CurrentUI;
-	
+
+
+	CameraAnchor playerCameraAnchor;
+
 
 	public override void childStart() {
 		if (starter) weapons [0] = starter.create (head, 2, HoldPos.hold, this);
-	}
+		playerCameraAnchor = transform.FindChild("Camera").GetComponent<CameraAnchor>();
+    }
 	
 	public override void shotNotify (BulletReceiver BR) {
 		reticleColor = Color.red;
