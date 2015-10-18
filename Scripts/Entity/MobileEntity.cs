@@ -28,7 +28,8 @@ public class MobileEntity : MonoBehaviour {
 			Move ();
 			childUpdate ();
 		}
-	}
+		childUpdateDoA();
+    }
 	
 	public void takeDamage(float dmg) {
 		health -= dmg;
@@ -44,6 +45,8 @@ public class MobileEntity : MonoBehaviour {
 	public virtual void childStart() {}
 
 	public virtual void childUpdate() {}
+
+	public virtual void childUpdateDoA() { }
 
 	public virtual void Move() {}
 }

@@ -54,7 +54,7 @@ public class Player : CombatantEntity {
 	public RectTransform CurrentUI;
 
 
-	ObjectAnchor playerCameraAnchor;
+	public ObjectAnchor playerCameraAnchor;
 	public Transform weaponAnchor;
 
 	public PlayerManager localPlayerManager;
@@ -157,6 +157,7 @@ public class Player : CombatantEntity {
 			if (weapons[currentWeapon] != null) weapons[currentWeapon].incrementFireSelect();
 		}
 		wasHoldingFireSwitch = Input.GetAxis ("P"+playerNumber+"FireMode") > 0;
+
 		
 		if (Input.GetKeyDown (KeyCode.C)) {
 			if (stance != PlayerStance.crouching) {
@@ -225,7 +226,14 @@ public class Player : CombatantEntity {
 		}
 		wasHoldingWeaponSwitch = Input.GetButton("P"+playerNumber+"Switch");
 	}
-	
+
+	public override void childUpdateDoA() {
+		if (!alive && Input.GetButton("P" + playerNumber + "Interact")) {
+			localPlayerManager.respawnPlayer(this);
+		}
+	}
+
+
 	public void switchWeapons(int newWeap) {
 		if (weapons[newWeap] != null) {
 			if (weapons[currentWeapon] != null) {
