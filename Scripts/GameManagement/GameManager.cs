@@ -22,7 +22,7 @@ public class GameManager : MonoBehaviour {
 		playerMan = GetComponent<PlayerManager>();
 
 		// Generate our debug player.
-		playerMan.CreatePlayers(1);
+		playerMan.CreatePlayers(3);
 
 		//if (gameManager != null) Destroy (gameManager);
 		//gameManager = this;

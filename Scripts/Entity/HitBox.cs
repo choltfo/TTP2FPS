@@ -11,5 +11,4 @@ public class HitBox : BulletReceiver {
 		print ("Received hit on " + name + ", passing to " + entity.name + '.');
 		b.shooter.shotNotify(this);
 	}
-	  
 }

@@ -48,6 +48,8 @@ public class PlayerManager : MonoBehaviour {
 			viewports[i - 2].width /= 2;
 			viewports[i].width = viewports[i - 2].width;
 			viewports[i].x = viewports[i - 2].width + viewports[i - 2].x;
+			viewports[i].height = viewports[i - 2].height;
+			viewports[i].y = viewports[i - 2].y;
 		}
 
 		// To prevent spawned units from clipping into eachother, stagger spawned groups in a 1x1 grid.

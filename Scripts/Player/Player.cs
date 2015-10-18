@@ -34,7 +34,7 @@ public class Player : CombatantEntity {
 	
 	public PlayerStance stance = PlayerStance.standing;
 	public bool sprinting = false;
-	
+
 	private Vector3 moveDirection = Vector3.zero;
 
 	public WeaponTemplate starter;
@@ -54,16 +54,35 @@ public class Player : CombatantEntity {
 	public RectTransform CurrentUI;
 
 
-	CameraAnchor playerCameraAnchor;
+	ObjectAnchor playerCameraAnchor;
+	public Transform weaponAnchor;
 
+	public PlayerManager localPlayerManager;
 
 	public override void childStart() {
 		if (starter) weapons [0] = starter.create (head, 2, HoldPos.hold, this);
-		playerCameraAnchor = transform.FindChild("Camera").GetComponent<CameraAnchor>();
-    }
+		playerCameraAnchor = transform.FindChild("Camera").GetComponent<ObjectAnchor>();
+
+		playerCameraAnchor.anchorRotation = false;
+		playerCameraAnchor.anchorPosition = true;
+	}
 	
 	public override void shotNotify (BulletReceiver BR) {
 		reticleColor = Color.red;
+	}
+
+	public override void Die() {
+		if (alive) {
+			anim.SetTrigger("DIE");
+			if (weapons[currentWeapon]) weapons[currentWeapon].drop();
+			GetComponent<CharacterController>().enabled = false;
+
+			playerCameraAnchor.anchorRotation = true;
+			playerCameraAnchor.anchorPosition = true;
+
+			localPlayerManager.notifyDeath(this);
+			//gameManager.notifyDeath(this); // For scorekeeping purposes.
+        }
 	}
 
 	void handleLook() {

@@ -4,6 +4,7 @@ using System.Collections;
 [RequireComponent (typeof(Animation))]
 [RequireComponent (typeof(Rigidbody))]
 [RequireComponent (typeof(Collider))]
+[RequireComponent (typeof(ObjectAnchor))]
 public class WeaponInstance : MonoBehaviour {
 
 	// Notes:
