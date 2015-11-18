@@ -4,7 +4,9 @@ using UnityEngine.UI;
 
 public class Player : CombatantEntity {
 
-	public int playerNumber = 0;
+    const float sin22p5 = 0.382683f;
+
+    public int playerNumber = 0;
 	public string playerName = "Player 1";
 
 	public GameObject head;
@@ -51,15 +53,25 @@ public class Player : CombatantEntity {
 	
 	public RectTransform WeaponUI;
 	public RectTransform PickupUI;
-	public RectTransform CurrentUI;
+    public RectTransform CurrentUI;
 
-
-	public ObjectAnchor playerCameraAnchor;
+    public ObjectAnchor playerCameraAnchor;
 	public Transform weaponAnchor;
 
 	public PlayerManager localPlayerManager;
 
-	public override void childStart() {
+    // Animation Variables
+
+    Vector3 lastNMDirection;
+
+    int LastXTravel = 0;
+    int LastZTravel = 0;
+
+    public float animTriggerLevel = 0.5f;
+
+
+
+    public override void childStart() {
 		if (starter) weapons [0] = starter.create (head, 2, HoldPos.hold, this);
 		playerCameraAnchor = transform.FindChild("Camera").GetComponent<ObjectAnchor>();
 
@@ -86,7 +98,7 @@ public class Player : CombatantEntity {
 	}
 
 	void handleLook() {
-		float inputHorizontal = Input.GetAxis ("P"+playerNumber+"LookX")*lookSensitivityX*
+		float inputHorizontal = Input.GetAxis ("P"+playerNumber+"LookX")*lookSensitivityX*  
 			(weapons[currentWeapon] != null ? (weapons[currentWeapon].holdPos == HoldPos.scope ? scopeSensitivity : 1) : 1);;
 		float inputVertical = Input.GetAxis ("P"+playerNumber+"LookY")*lookSensitivityY*
 				(weapons[currentWeapon] != null ? (weapons[currentWeapon].holdPos == HoldPos.scope ? scopeSensitivity : 1) : 1);
@@ -219,9 +231,9 @@ public class Player : CombatantEntity {
 				switchWeapons(slot);
 			}
 		}
-		
-		// TODO: Fix input of ambiguous type. Also todo, figure out what this means....
-		if (Input.GetButton("P"+playerNumber+"Switch") && !wasHoldingWeaponSwitch) {
+
+        // TODO: Fix input of ambiguous type. Also todo, figure out what this means....
+        if (Input.GetButton("P"+playerNumber+"Switch") && !wasHoldingWeaponSwitch) {
 			switchWeapons((currentWeapon+1) % weapons.Length);
 		}
 		wasHoldingWeaponSwitch = Input.GetButton("P"+playerNumber+"Switch");
@@ -337,9 +349,14 @@ public class Player : CombatantEntity {
 		}
 	}
 
+	public bool isAiming () {
+		if (weapons[currentWeapon]) return weapons[currentWeapon].holdPos == HoldPos.scope;
+		else return false;
+	}
+
 	public override void Move () {
 		if (c.isGrounded) {
-			setSprinting(Input.GetButton("P"+playerNumber+"Sprint") && stance == PlayerStance.standing);
+			setSprinting(Input.GetButton("P"+playerNumber+"Sprint") && stance == PlayerStance.standing && !isAiming());
 			moveDirection = new Vector3(Input.GetAxis("P"+playerNumber+"MoveX"), 0, Input.GetAxis("P"+playerNumber+"MoveY"));
 			moveDirection = transform.TransformDirection(moveDirection);
 			moveDirection *= sprinting ? sprintSpeed : (stance == PlayerStance.standing ? speed : (stance == PlayerStance.crouching ? crouchedSpeed : proneSpeed));
@@ -349,7 +366,35 @@ public class Player : CombatantEntity {
 		
 		moveDirection.y -= gravity * Time.deltaTime;
 		c.Move(moveDirection * Time.deltaTime);
-	}
+
+        Vector3 animLocalDirection = moveDirection;
+
+        animLocalDirection = transform.InverseTransformDirection(animLocalDirection);
+
+        int XTravel = 0;
+        int ZTravel = 0;
+        //sin22p5
+        if (Mathf.Abs(animLocalDirection.x) > sin22p5) XTravel = (int)(animLocalDirection.x / Mathf.Abs(animLocalDirection.x));
+        if (Mathf.Abs(animLocalDirection.z) > sin22p5) ZTravel = (int)(animLocalDirection.z / Mathf.Abs(animLocalDirection.z));
+
+        if ((animLocalDirection - lastNMDirection).sqrMagnitude > animTriggerLevel) {
+            if (!(XTravel == 0 && ZTravel == 0))
+
+                anim.SetTrigger("MOVE" + (ZTravel == 0 ? "" : (ZTravel > 0 ? "_FORWARD" : "_BACKWARD")) + (XTravel == 0 ? "" : (XTravel > 0 ? "_RIGHT" : "_LEFT")));
+
+            else if (XTravel == 0 && ZTravel == 0)
+
+                anim.SetTrigger("IDLE_AIMING");
+
+            if (animLocalDirection.y > 0.1f) anim.SetTrigger("JUMP"); 
+            //isIdle = false;
+        }
+
+        LastXTravel = XTravel;
+        LastZTravel = ZTravel;
+
+        lastNMDirection = animLocalDirection;
+    }
 }
 
 
