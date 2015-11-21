@@ -8,7 +8,10 @@ public class HitBox : BulletReceiver {
 	
 	public override void ReceiveShot(BulletData b) {
 		entity.takeDamage(b.damage*muliplier);
-		print ("Received hit on " + name + ", passing to " + entity.name + '.');
+		print ("Received hit on " + name + " from " + b.shooter.name + ", passing to " + entity.name + '.');
 		b.shooter.shotNotify(this);
+		if (entity is CombatantEntity) {
+			((CombatantEntity)entity).receiveShot(b);
+		}
 	}
 }

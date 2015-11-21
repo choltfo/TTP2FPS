@@ -8,6 +8,8 @@ public class CombatantEntity : MobileEntity {
 	public Animator anim;
 	public WeaponInstance[] weapons;
 	public int currentWeapon = 0;
+
+    public Team team = Team.FREE_FOR_ALL;
 	
 	// Cover. Object reference.
 	
@@ -29,5 +31,8 @@ public class CombatantEntity : MobileEntity {
 	// Called when a BulletReceiver is shot by this entity.
 	// Mostly for flashing UI, but could have some other use, such as taunts.
 	public virtual void shotNotify (BulletReceiver BR) {}
+
+	// Called when an associated hitbox is shot. Deals with non-damage information.
+	public virtual void receiveShot(BulletData BD) {}
 }
 

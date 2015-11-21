@@ -17,8 +17,15 @@ public class TestEnemy : CombatantEntity {
 	bool tracking = false;
 	MovementStates state = MovementStates.MovingToTarget;
 	
-	const float sin22p5 = 0.382683f;	// Used for animation triggering.
-	
+	const float sin22p5 = 0.382683f;    // Used for animation triggering.
+
+
+	public override void receiveShot(BulletData bd) {
+		print("Received shot from " + bd.shooter.name + ", starting tracking.");
+		target = bd.shooter.gameObject;
+		tracking = true;
+	}
+
 	// Use this for initialization
 	void Start () {
 		//anim.SetTrigger("IDLE");
@@ -45,18 +52,30 @@ public class TestEnemy : CombatantEntity {
 			the sub-object, which is the root of the gun. This way, it will backpedal while firing when applicable.
 	*/
 	public override void childUpdate () {
-		if (Input.GetKeyDown(KeyCode.Return)) tracking = true;
-		if (tracking) navMeshAgent.SetDestination(target.transform.position);
+
+        //
+
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            tracking = true;
+            foreach (Object obj in Object.FindObjectsOfType(typeof(CombatantEntity))) {
+                if (obj != this) target = ((CombatantEntity)obj).gameObject;
+            }
+        }
 		
 		Debug.DrawRay(transform.position,transform.forward, Color.gray);
 		
 		Vector3 animLocalDirection = anim.transform.InverseTransformDirection(navMeshAgent.desiredVelocity).normalized;
-		
-		//print (animLocalDirection);
-		
-		//print (navMeshAgent.path.corners.Length);
-		
-		if (navMeshAgent.path.corners.Length <= 2) {
+
+        //print (animLocalDirection);
+
+        //print (navMeshAgent.path.corners.Length);
+
+        if (!tracking || !alive) return;
+
+        navMeshAgent.SetDestination(target.transform.position);
+
+        if (navMeshAgent.path.corners.Length <= 2) {
 			RaycastHit testForLOS;
 			Debug.DrawLine(anim.transform.position+new Vector3(0,1.75f)+(anim.transform.forward*1f), target.transform.position+new Vector3(0,0.625f)-(anim.transform.forward*0.5f), Color.blue);
 			if (!Physics.Linecast(anim.transform.position+new Vector3(0,1.75f)+(anim.transform.forward*1f), target.transform.position+new Vector3(0,0.625f)-(anim.transform.forward*0.5f), out testForLOS)) {
@@ -139,7 +158,7 @@ public class TestEnemy : CombatantEntity {
 		
 		return CoverList.allNodes[nearest];
 	}
-	
+
 }
 
 

@@ -384,7 +384,7 @@ public class Player : CombatantEntity {
 
             else if (XTravel == 0 && ZTravel == 0)
 
-                anim.SetTrigger("IDLE_AIMING");
+                anim.SetTrigger("IDLE" + (weapons[currentWeapon] ? "_AIMING" : ""));
 
             if (animLocalDirection.y > 0.1f) anim.SetTrigger("JUMP"); 
             //isIdle = false;
